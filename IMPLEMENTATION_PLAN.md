@@ -137,20 +137,22 @@ This plan outlines the development of `umami-client`, a Ruby gem for interacting
 - [ ] Add YARD documentation for all methods
 
 #### 2.2: Authentication System
-- [ ] Create `Umami::Client::Auth` class
-- [ ] Implement self-hosted authentication:
+- [x] ~~Create `Umami::Client::Auth` class~~ Implemented in `Connection` class
+- [x] Implement self-hosted authentication:
   - `POST /api/auth/login` endpoint
   - Token storage and management
   - Automatic token inclusion in requests via `Authorization: Bearer <token>` header
-  - Token verification via `POST /api/auth/verify`
-- [ ] Implement Umami Cloud authentication:
-  - API key configuration
-  - Proper header formatting for cloud requests
-- [ ] Add token caching mechanism (in-memory)
+  - ~~Token verification via `POST /api/auth/verify`~~ (deferred - not needed for basic functionality)
+- [x] Implement Umami Cloud authentication:
+  - API key configuration via `config.api_key`
+  - Proper header formatting for cloud requests (`x-umami-api-key`)
+- [x] Add token caching mechanism (in-memory via `@bearer_token`)
 - [ ] Implement automatic re-authentication on 401 errors
-- [ ] Handle authentication errors gracefully
+- [x] Handle authentication errors gracefully
 - [ ] Write tests for both auth methods using VCR for HTTP fixtures
-- [ ] Add YARD documentation for authentication flow
+- [x] Add YARD documentation for authentication flow
+
+**Note**: Both authentication methods are now supported. The client automatically detects which method to use based on provided credentials (api_key vs username/password).
 
 #### 2.3: Response Handling
 - [ ] Create `Umami::Models::Response` wrapper class

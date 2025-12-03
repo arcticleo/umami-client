@@ -4,6 +4,9 @@ module UmamiClient
   # Base error class for all UmamiClient errors
   class Error < StandardError; end
 
+  # Raised when configuration is missing or invalid
+  class ConfigurationError < Error; end
+
   # Raised when API key is missing or invalid
   class AuthenticationError < Error; end
 

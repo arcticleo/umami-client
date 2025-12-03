@@ -26,14 +26,18 @@ $ gem install umami-client
 
 ### Configuration
 
-Configure the client globally:
+The client supports two authentication methods:
+
+#### 1. Umami Cloud (API Key Authentication)
+
+Configure globally:
 
 ```ruby
 require 'umami_client'
 
 UmamiClient.configure do |config|
   config.api_key = "your-api-key"
-  config.base_url = "https://analytics.umami.is" # optional, defaults to https://api.umami.is
+  config.base_url = "https://api.umami.is" # optional, defaults to this
 end
 ```
 
@@ -42,9 +46,35 @@ Or create a client with custom configuration:
 ```ruby
 client = UmamiClient.new(
   api_key: "your-api-key",
-  base_url: "https://analytics.umami.is"
+  base_url: "https://api.umami.is"
 )
 ```
+
+#### 2. Self-Hosted (Username/Password Authentication)
+
+Configure globally:
+
+```ruby
+require 'umami_client'
+
+UmamiClient.configure do |config|
+  config.username = "your-username"
+  config.password = "your-password"
+  config.base_url = "https://your-umami-instance.com"
+end
+```
+
+Or create a client with custom configuration:
+
+```ruby
+client = UmamiClient.new(
+  username: "your-username",
+  password: "your-password",
+  base_url: "https://your-umami-instance.com"
+)
+```
+
+**Note:** The client automatically detects which authentication method to use based on the credentials provided. For self-hosted instances, the client will automatically authenticate and manage bearer tokens.
 
 ## Development
 
