@@ -2,8 +2,9 @@
 
 require_relative "umami_client/version"
 require_relative "umami_client/configuration"
-require_relative "umami_client/client"
 require_relative "umami_client/error"
+require_relative "umami_client/connection"
+require_relative "umami_client/client"
 
 module UmamiClient
   class << self

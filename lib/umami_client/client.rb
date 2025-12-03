@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
+require_relative "connection"
+
 module UmamiClient
   # Main client class for interacting with the Umami API
   class Client
-    attr_reader :api_key, :base_url, :timeout
+    attr_reader :api_key, :base_url, :timeout, :connection
 
     # Creates a new client instance
     #
@@ -15,6 +17,12 @@ module UmamiClient
       @timeout = UmamiClient.configuration.timeout
 
       raise AuthenticationError, "API key is required" if @api_key.nil? || @api_key.empty?
+
+      @connection = Connection.new(
+        api_key: @api_key,
+        base_url: @base_url,
+        timeout: @timeout
+      )
     end
   end
 end
