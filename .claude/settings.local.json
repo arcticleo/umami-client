@@ -1,0 +1,12 @@
+{
+  "apiKeyHelper": "echo $CLAUDE_LUXRE_MEDLUND",
+  "permissions": {
+    "allow": [
+      "Bash(cat:*)",
+      "Bash(xcodebuild:*)",
+      "WebFetch(domain:umami.is)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)"
+    ]
+  }
+}
