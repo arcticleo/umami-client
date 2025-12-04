@@ -102,7 +102,7 @@ module UmamiClient
       end
     end
 
-    def request(method, path, params: {}, body: {})
+    def request(method, path, params: {}, body: {}, retry_auth: true)
       # Authenticate for self-hosted if not already done
       authenticate! if auth_method == :self_hosted
 
@@ -123,6 +123,14 @@ module UmamiClient
       end
 
       handle_response(response)
+    rescue AuthenticationError => e
+      # If we get a 401/403 and haven't retried yet, try re-authenticating
+      if retry_auth && auth_method == :self_hosted && @bearer_token
+        @bearer_token = nil # Clear the expired token
+        authenticate!       # Get a new token
+        return request(method, path, params: params, body: body, retry_auth: false)
+      end
+      raise e
     rescue Faraday::TimeoutError => e
       raise NetworkError, "Request timeout: #{e.message}"
     rescue Faraday::ConnectionFailed => e
