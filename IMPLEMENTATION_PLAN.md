@@ -206,9 +206,9 @@ This plan outlines the development of `umami-client`, a Ruby gem for interacting
 ### Tasks
 
 #### 3.1: Event Tracking Core
-- [ ] Create `Umami::Client::Events` class
-- [ ] Implement `POST /api/send` endpoint wrapper
-- [ ] Create `track_event` method:
+- [x] Create `Umami::Client::Events` class
+- [x] Implement `POST /api/send` endpoint wrapper
+- [x] Create `track_event` method:
   ```ruby
   def track_event(
     event_name,
@@ -227,18 +227,18 @@ This plan outlines the development of `umami-client`, a Ruby gem for interacting
   - `name` - Event name
   - `data` - Custom event properties (optional)
   - `type` - "event"
-- [ ] Add automatic User-Agent header (required by Umami)
-- [ ] Handle response: return `cache`, `sessionId`, `visitId`
-- [ ] Validate event data constraints:
-  - Numbers: max 4 decimal precision
-  - Strings: 500 char limit
-  - Arrays: convert to strings (500 char max)
-  - Objects: 50 property max
-- [ ] Write comprehensive tests
-- [ ] Add YARD documentation with examples
+- [x] Add automatic User-Agent header (handled by Faraday)
+- [x] Handle response: return Response object with body
+- [x] Validate event data constraints:
+  - Numbers: max 4 decimal precision ✓
+  - Strings: 500 char limit ✓
+  - Arrays: convert to strings (500 char max) ✓
+  - Objects: 50 property max ✓
+- [ ] **TODO: Write comprehensive tests** (deferred to later)
+- [x] Add YARD documentation with examples
 
 #### 3.2: Page View Tracking
-- [ ] Create `track_pageview` method:
+- [x] Create `track_pageview` method:
   ```ruby
   def track_pageview(
     url,

@@ -129,6 +129,112 @@ The username/password method is simpler because:
 
 If you need the `UMAMI_API_CLIENT_USER_ID` / `UMAMI_API_CLIENT_SECRET` method (encrypted JWT tokens), please open an issue on GitHub.
 
+## Event Tracking
+
+### Track Pageviews
+
+Track page views on your website:
+
+```ruby
+UmamiClient.configure do |config|
+  config.base_url = "https://your-umami-instance.com"
+  config.username = "your-username"
+  config.password = "your-password"
+  config.website_id = "your-website-id"
+  config.default_hostname = "example.com"
+end
+
+client = UmamiClient::Client.new
+
+# Simple pageview
+client.events.track_pageview("/")
+
+# Pageview with title
+client.events.track_pageview("/products", title: "Products Page")
+
+# Pageview with referrer
+client.events.track_pageview(
+  "/blog/post-1",
+  title: "Blog Post",
+  referrer: "https://google.com"
+)
+```
+
+### Track Custom Events
+
+Track custom events with optional data:
+
+```ruby
+# Simple event
+client.events.track_event("button_click")
+
+# Event with custom data
+client.events.track_event(
+  "purchase",
+  url: "/checkout/complete",
+  data: {
+    amount: 99.99,
+    currency: "USD",
+    product_id: "prod_123"
+  }
+)
+```
+
+**Note:** Custom events with the `name` field may not show up in some Umami versions. For reliable tracking, use `track_pageview` instead.
+
+### Configuration Options
+
+```ruby
+UmamiClient.configure do |config|
+  # Required
+  config.base_url = "https://your-umami-instance.com"
+  config.username = "your-username"
+  config.password = "your-password"
+  config.website_id = "your-website-id"
+  config.default_hostname = "example.com"
+
+  # Optional
+  config.user_agent = "Mozilla/5.0 ..." # Default: Chrome on macOS
+  config.timeout = 30                    # Request timeout in seconds
+  config.max_retries = 3                 # Max retry attempts
+  config.retry_delay = 0.5               # Initial retry delay
+  config.backoff_factor = 2              # Exponential backoff multiplier
+end
+```
+
+### Custom User-Agent
+
+The User-Agent string determines how Umami parses OS and device information. You can customize it:
+
+```ruby
+# Default (macOS Chrome)
+config.user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) ..."
+
+# Windows Chrome
+config.user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ..."
+
+# iPhone Safari
+config.user_agent = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) ..."
+```
+
+## Website Management
+
+### List Websites
+
+```ruby
+client = UmamiClient::Client.new
+
+# List all websites
+websites = client.websites.list
+websites.body["data"].each do |website|
+  puts "#{website['name']}: #{website['id']}"
+end
+
+# Get specific website
+website = client.websites.get("website-id")
+puts website.body["name"]
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

@@ -101,6 +101,9 @@ module UmamiClient
       @connection ||= Faraday.new(url: base_url) do |faraday|
         faraday.request :json
 
+        # Set a proper User-Agent header (required by Umami)
+        faraday.headers["User-Agent"] = "UmamiClient Ruby Gem/#{UmamiClient::VERSION}"
+
         # Configure retry middleware with our settings
         faraday.request :retry,
                         max: max_retries,
