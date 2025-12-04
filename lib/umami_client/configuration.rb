@@ -18,12 +18,28 @@ module UmamiClient
     # @return [Integer] the timeout for HTTP requests in seconds
     attr_accessor :timeout
 
+    # @return [Integer] the maximum number of retry attempts for failed requests
+    attr_accessor :max_retries
+
+    # @return [Float] the initial retry delay in seconds
+    attr_accessor :retry_delay
+
+    # @return [Integer] the exponential backoff factor for retries
+    attr_accessor :backoff_factor
+
+    # @return [Array<Integer>] HTTP status codes that should trigger a retry
+    attr_accessor :retry_statuses
+
     def initialize
       @api_key = nil
       @username = nil
       @password = nil
       @base_url = "https://api.umami.is"
       @timeout = 30
+      @max_retries = 3
+      @retry_delay = 0.5
+      @backoff_factor = 2
+      @retry_statuses = [429, 500, 502, 503, 504]
     end
 
     # Determines which authentication method to use

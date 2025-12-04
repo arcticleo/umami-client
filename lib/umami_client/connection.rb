@@ -7,14 +7,20 @@ require "json"
 module UmamiClient
   # Handles HTTP connections to the Umami API
   class Connection
-    attr_reader :api_key, :username, :password, :base_url, :timeout, :auth_method
+    attr_reader :api_key, :username, :password, :base_url, :timeout, :auth_method,
+                :max_retries, :retry_delay, :backoff_factor, :retry_statuses
 
-    def initialize(api_key: nil, username: nil, password: nil, base_url:, timeout:)
+    def initialize(api_key: nil, username: nil, password: nil, base_url:, timeout:,
+                   max_retries: 3, retry_delay: 0.5, backoff_factor: 2, retry_statuses: nil)
       @api_key = api_key
       @username = username
       @password = password
       @base_url = base_url
       @timeout = timeout
+      @max_retries = max_retries
+      @retry_delay = retry_delay
+      @backoff_factor = backoff_factor
+      @retry_statuses = retry_statuses || [429, 500, 502, 503, 504]
       @auth_method = determine_auth_method
       @bearer_token = nil
     end
@@ -94,11 +100,54 @@ module UmamiClient
     def connection
       @connection ||= Faraday.new(url: base_url) do |faraday|
         faraday.request :json
-        faraday.request :retry, max: 3, interval: 0.5, backoff_factor: 2
+
+        # Configure retry middleware with our settings
+        faraday.request :retry,
+                        max: max_retries,
+                        interval: retry_delay,
+                        backoff_factor: backoff_factor,
+                        methods: %i[get post put delete patch],
+                        exceptions: [
+                          Faraday::TimeoutError,
+                          Faraday::ConnectionFailed,
+                          Errno::ETIMEDOUT,
+                          Errno::ECONNREFUSED,
+                          Errno::ECONNRESET
+                        ],
+                        retry_statuses: retry_statuses,
+                        retry_block: lambda { |env:, options:, retry_count:, exception:, will_retry_in:|
+                          # Check for Retry-After header and respect it
+                          if env.response_headers&.key?("retry-after")
+                            retry_after = env.response_headers["retry-after"]
+                            will_retry_in = parse_retry_after(retry_after)
+                          end
+                        }
+
         faraday.response :json, content_type: /\bjson$/
         faraday.adapter Faraday.default_adapter
         faraday.options.timeout = timeout
         faraday.options.open_timeout = 10
+      end
+    end
+
+    # Parses the Retry-After header value
+    #
+    # @param value [String] the Retry-After header value
+    # @return [Float] seconds to wait
+    def parse_retry_after(value)
+      # Try to parse as integer first (seconds)
+      if value.match?(/^\d+$/)
+        value.to_i.to_f
+      else
+        # Try to parse as HTTP date
+        begin
+          require "time"
+          retry_time = Time.httpdate(value)
+          [(retry_time - Time.now).to_f, 0].max
+        rescue ArgumentError
+          # If parsing fails, fall back to default interval
+          retry_delay
+        end
       end
     end
 

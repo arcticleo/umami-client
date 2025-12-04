@@ -42,7 +42,11 @@ module UmamiClient
         username: @username,
         password: @password,
         base_url: @base_url,
-        timeout: @timeout
+        timeout: @timeout,
+        max_retries: config.max_retries,
+        retry_delay: config.retry_delay,
+        backoff_factor: config.backoff_factor,
+        retry_statuses: config.retry_statuses
       )
     end
 

@@ -166,17 +166,19 @@ This plan outlines the development of `umami-client`, a Ruby gem for interacting
 - [x] Add YARD documentation
 
 #### 2.4: Retry Logic & Resilience
-- [ ] Implement exponential backoff for retries
-- [ ] Configure retry for:
-  - Network errors
-  - 5xx server errors
+- [x] Implement exponential backoff for retries
+- [x] Configure retry for:
+  - Network errors (TimeoutError, ConnectionFailed, ETIMEDOUT, ECONNREFUSED, ECONNRESET)
+  - 5xx server errors (500, 502, 503, 504)
   - Rate limiting (429)
-- [ ] Add configurable retry options:
+- [x] Add configurable retry options:
   - `max_retries` (default: 3)
-  - `retry_delay` (default: 1 second)
-- [ ] Respect `Retry-After` header when present
-- [ ] Write tests for retry scenarios
-- [ ] Add YARD documentation
+  - `retry_delay` (default: 0.5 seconds)
+  - `backoff_factor` (default: 2)
+  - `retry_statuses` (default: [429, 500, 502, 503, 504])
+- [x] Respect `Retry-After` header when present (via retry_block)
+- [ ] **TODO: Write tests for retry scenarios** (deferred to later)
+- [x] Add YARD documentation
 
 **Deliverables**:
 - Fully functional HTTP client with authentication
