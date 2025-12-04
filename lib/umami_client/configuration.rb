@@ -12,12 +12,6 @@ module UmamiClient
     # @return [String, nil] the password for self-hosted authentication (same as web login)
     attr_accessor :password
 
-    # @return [String, nil] the API client user ID for server-side event tracking
-    attr_accessor :api_client_user_id
-
-    # @return [String, nil] the API client secret for server-side event tracking
-    attr_accessor :api_client_secret
-
     # @return [String] the base URL for the Umami API
     attr_accessor :base_url
 
@@ -49,8 +43,6 @@ module UmamiClient
       @api_key = nil
       @username = nil
       @password = nil
-      @api_client_user_id = nil
-      @api_client_secret = nil
       @base_url = "https://api.umami.is"
       @website_id = nil
       @default_hostname = nil

@@ -7,23 +7,18 @@ module UmamiClient
   # to your Umami instance. Events are sent to the /api/send endpoint which
   # does not require authentication.
   class Events
-    attr_reader :connection, :website_id, :default_hostname, :api_client_user_id, :api_client_secret, :user_agent
+    attr_reader :connection, :website_id, :default_hostname, :user_agent
 
     # Creates a new Events instance
     #
     # @param connection [Connection] the HTTP connection instance
     # @param website_id [String, nil] default website ID for tracking
     # @param default_hostname [String, nil] default hostname for events
-    # @param api_client_user_id [String, nil] API client user ID for server-side tracking
-    # @param api_client_secret [String, nil] API client secret for server-side tracking
     # @param user_agent [String] User-Agent string for tracking requests
-    def initialize(connection:, website_id: nil, default_hostname: nil,
-                   api_client_user_id: nil, api_client_secret: nil, user_agent:)
+    def initialize(connection:, website_id: nil, default_hostname: nil, user_agent:)
       @connection = connection
       @website_id = website_id
       @default_hostname = default_hostname
-      @api_client_user_id = api_client_user_id
-      @api_client_secret = api_client_secret
       @user_agent = user_agent
     end
 
@@ -183,33 +178,6 @@ module UmamiClient
       end
 
       response = conn.post("/api/send") do |req|
-        req.headers["Content-Type"] = "application/json"
-        req.body = payload
-      end
-
-      # Wrap in our Response model
-      Models::Response.new(response)
-    end
-
-    # Sends event with API client authentication
-    #
-    # @param payload [Hash] the event payload
-    # @return [Models::Response] the response
-    def send_with_api_key(payload)
-      # We need to make a custom POST request with the API key header
-      # Use Faraday directly since we need custom headers
-      require 'faraday'
-
-      conn = Faraday.new(url: connection.base_url) do |f|
-        f.request :json
-        f.response :json
-        f.adapter Faraday.default_adapter
-        # Use a browser-like User-Agent - Umami may filter non-browser agents
-        f.headers["User-Agent"] = "Mozilla/5.0 (compatible; UmamiClient/#{UmamiClient::VERSION}; +https://github.com/umami-ruby-client)"
-      end
-
-      response = conn.post("/api/send") do |req|
-        req.headers["x-umami-api-key"] = api_client_secret
         req.headers["Content-Type"] = "application/json"
         req.body = payload
       end

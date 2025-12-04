@@ -83,8 +83,6 @@ client = UmamiClient.new(
 
 **How it works:** The client automatically detects which authentication method to use based on the credentials provided. For self-hosted instances, the client calls `/api/auth/login` with your credentials, receives a bearer token, and manages it automatically for all subsequent requests.
 
-**Note:** This uses the interactive login method (same as logging into the web interface), which is different from the `UMAMI_API_CLIENT_USER_ID` / `UMAMI_API_CLIENT_SECRET` method used by Umami's official JavaScript API client. The username/password method is simpler and works for most use cases.
-
 ### Environment Variables
 
 You can use environment variables to configure the client:
@@ -111,23 +109,6 @@ UmamiClient.configure do |config|
   config.base_url = ENV['UMAMI_BASE_URL']
 end
 ```
-
-### Authentication Method Comparison
-
-This gem uses **username/password authentication** for self-hosted instances, which differs from the official Umami JavaScript API client:
-
-| Method | This Gem | Official JS Client |
-|--------|----------|-------------------|
-| **Umami Cloud** | ✅ API Key (`x-umami-api-key` header) | ✅ API Key |
-| **Self-Hosted** | ✅ Username/Password (POST /api/auth/login) | ❌ User ID + App Secret |
-
-The username/password method is simpler because:
-- Uses the same credentials as the web interface
-- No need to configure `APP_SECRET` or extract user IDs
-- Automatically manages bearer tokens
-- Works for most API use cases
-
-If you need the `UMAMI_API_CLIENT_USER_ID` / `UMAMI_API_CLIENT_SECRET` method (encrypted JWT tokens), please open an issue on GitHub.
 
 ## Event Tracking
 
