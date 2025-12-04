@@ -147,23 +147,23 @@ This plan outlines the development of `umami-client`, a Ruby gem for interacting
   - API key configuration via `config.api_key`
   - Proper header formatting for cloud requests (`x-umami-api-key`)
 - [x] Add token caching mechanism (in-memory via `@bearer_token`)
-- [ ] Implement automatic re-authentication on 401 errors
+- [x] Implement automatic re-authentication on 401 errors
 - [x] Handle authentication errors gracefully
-- [ ] Write tests for both auth methods using VCR for HTTP fixtures
+- [ ] **TODO: Write tests for both auth methods using VCR for HTTP fixtures** (deferred to later)
 - [x] Add YARD documentation for authentication flow
 
 **Note**: Both authentication methods are now supported. The client automatically detects which method to use based on provided credentials (api_key vs username/password).
 
 #### 2.3: Response Handling
-- [ ] Create `Umami::Models::Response` wrapper class
-- [ ] Implement response parsing:
+- [x] Create `Umami::Models::Response` wrapper class
+- [x] Implement response parsing:
   - Success responses (2xx)
   - Error responses (4xx, 5xx)
   - Extract error messages from response body
-- [ ] Add response validation
-- [ ] Implement pagination support (for list endpoints)
-- [ ] Write tests for various response scenarios
-- [ ] Add YARD documentation
+- [x] Add response validation (via success?, error?, client_error?, server_error? methods)
+- [x] Implement pagination support (for list endpoints via pagination method and headers)
+- [ ] **TODO: Write tests for various response scenarios** (deferred to later)
+- [x] Add YARD documentation
 
 #### 2.4: Retry Logic & Resilience
 - [ ] Implement exponential backoff for retries

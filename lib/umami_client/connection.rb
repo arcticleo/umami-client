@@ -139,30 +139,25 @@ module UmamiClient
       raise NetworkError, "Network error: #{e.message}"
     end
 
-    def handle_response(response)
+    def handle_response(faraday_response)
+      # Wrap the Faraday response in our Response model
+      response = Models::Response.new(faraday_response)
+
       case response.status
       when 200..299
-        response.body
+        response
       when 400
-        raise BadRequestError, error_message(response)
+        raise BadRequestError, response.error_message
       when 401, 403
-        raise AuthenticationError, error_message(response)
+        raise AuthenticationError, response.error_message
       when 404
-        raise NotFoundError, error_message(response)
+        raise NotFoundError, response.error_message
       when 429
-        raise RateLimitError, error_message(response)
+        raise RateLimitError, response.error_message
       when 500..599
-        raise ServerError, error_message(response)
+        raise ServerError, response.error_message
       else
         raise Error, "Unexpected response status: #{response.status}"
-      end
-    end
-
-    def error_message(response)
-      if response.body.is_a?(Hash)
-        response.body["message"] || response.body["error"] || "HTTP #{response.status}"
-      else
-        "HTTP #{response.status}"
       end
     end
   end

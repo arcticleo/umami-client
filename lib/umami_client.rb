@@ -3,6 +3,7 @@
 require_relative "umami_client/version"
 require_relative "umami_client/configuration"
 require_relative "umami_client/error"
+require_relative "umami_client/models/response"
 require_relative "umami_client/connection"
 require_relative "umami_client/client"
 
