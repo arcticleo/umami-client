@@ -67,6 +67,12 @@ module UmamiClient
     end
 
     # Authenticates with self-hosted Umami instance and obtains bearer token
+    #
+    # This uses the interactive login method (POST /api/auth/login) with the same
+    # username/password credentials used for the web interface. This is different from
+    # the UMAMI_API_CLIENT_USER_ID/SECRET method used by the official JS API client.
+    #
+    # The bearer token is cached and reused for subsequent requests.
     def authenticate!
       return if @bearer_token # Already authenticated
       return unless auth_method == :self_hosted

@@ -6,10 +6,10 @@ module UmamiClient
     # @return [String, nil] the Umami Cloud API key
     attr_accessor :api_key
 
-    # @return [String, nil] the username for self-hosted authentication
+    # @return [String, nil] the username for self-hosted authentication (same as web login)
     attr_accessor :username
 
-    # @return [String, nil] the password for self-hosted authentication
+    # @return [String, nil] the password for self-hosted authentication (same as web login)
     attr_accessor :password
 
     # @return [String] the base URL for the Umami API
