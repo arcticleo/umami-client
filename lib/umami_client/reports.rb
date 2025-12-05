@@ -471,6 +471,86 @@ module UmamiClient
       connection.post("/api/reports/retention", body)
     end
 
+    # Executes a goal report to track single conversion points
+    #
+    # Monitors specific conversion actions like newsletter signups, demo requests,
+    # or important page visits. Unlike funnels (which track multi-step journeys),
+    # goals measure completion of a single action independently.
+    #
+    # @param website_id [String] the website ID
+    # @param start_date [Time, String] start date (Time object or ISO 8601 string)
+    # @param end_date [Time, String] end date (Time object or ISO 8601 string)
+    # @param goal_type [String] goal type: "path" for URL paths or "event" for custom events
+    # @param goal_value [String] the URL path or event name to track
+    # @param filters [Hash, nil] optional filters (country, device, browser, os, etc.)
+    #
+    # @return [Response] response containing goal completion metrics
+    #   - num: number of goal completions
+    #   - total: total tracked events/pageviews
+    #   - conversion rate: num / total * 100
+    #
+    # @raise [ValidationError] if required parameters are missing or invalid
+    # @raise [AuthenticationError] if not authenticated
+    # @raise [APIError] if the API request fails
+    #
+    # @example Track newsletter signup completions
+    #   response = client.reports.goals(
+    #     "website-id",
+    #     Time.now - 30.days,
+    #     Time.now,
+    #     "event",
+    #     "newsletter_signup"
+    #   )
+    #
+    #   completions = response.body['num']
+    #   total = response.body['total']
+    #   rate = (completions.to_f / total * 100).round(2)
+    #   puts "Newsletter signups: #{completions} / #{total} (#{rate}%)"
+    #
+    # @example Track thank you page visits
+    #   response = client.reports.goals(
+    #     "website-id",
+    #     Time.now - 7.days,
+    #     Time.now,
+    #     "path",
+    #     "/thank-you"
+    #   )
+    #
+    #   puts "Conversions: #{response.body['num']}"
+    #   puts "Conversion rate: #{(response.body['num'].to_f / response.body['total'] * 100).round(2)}%"
+    #
+    # @example Goal with filters (US visitors only)
+    #   response = client.reports.goals(
+    #     "website-id",
+    #     Time.now - 30.days,
+    #     Time.now,
+    #     "event",
+    #     "purchase",
+    #     filters: { country: "US" }
+    #   )
+    def goals(website_id, start_date, end_date, goal_type, goal_value, filters: nil)
+      raise ValidationError, "website_id is required" if website_id.nil? || website_id.empty?
+      raise ValidationError, "start_date is required" if start_date.nil?
+      raise ValidationError, "end_date is required" if end_date.nil?
+      raise ValidationError, "goal_type is required" if goal_type.nil? || goal_type.empty?
+      raise ValidationError, "goal_type must be 'path' or 'event'" unless %w[path event].include?(goal_type)
+      raise ValidationError, "goal_value is required" if goal_value.nil? || goal_value.empty?
+
+      body = {
+        websiteId: website_id,
+        type: "goal",
+        parameters: {
+          startDate: format_date(start_date),
+          endDate: format_date(end_date),
+          type: goal_type,
+          value: goal_value
+        }
+      }
+      body[:filters] = filters if filters
+
+      connection.post("/api/reports/goals", body)
+    end
+
     private
 
     # Formats a date for API consumption
