@@ -7,6 +7,9 @@ module UmamiClient
   # Raised when configuration is missing or invalid
   class ConfigurationError < Error; end
 
+  # Raised when parameters are invalid or missing
+  class ValidationError < Error; end
+
   # Raised when API key is missing or invalid
   class AuthenticationError < Error; end
 

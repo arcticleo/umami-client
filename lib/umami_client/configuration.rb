@@ -47,7 +47,7 @@ module UmamiClient
       @website_id = nil
       @default_hostname = nil
       @timeout = 30
-      @user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+      @user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15"
       @max_retries = 3
       @retry_delay = 0.5
       @backoff_factor = 2

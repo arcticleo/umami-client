@@ -8,6 +8,7 @@ module UmamiClient
   # does not require authentication.
   class Events
     attr_reader :connection, :website_id, :default_hostname, :user_agent
+    attr_accessor :user_id
 
     # Creates a new Events instance
     #
@@ -20,6 +21,7 @@ module UmamiClient
       @website_id = website_id
       @default_hostname = default_hostname
       @user_agent = user_agent
+      @user_id = nil
     end
 
     # Tracks a pageview to Umami Analytics
@@ -79,6 +81,7 @@ module UmamiClient
       # Add optional fields
       payload[:payload][:referrer] = referrer if referrer
       payload[:payload][:title] = title if title
+      payload[:payload][:id] = @user_id if @user_id
 
       # Send the request
       send_event(payload)
@@ -144,9 +147,98 @@ module UmamiClient
       payload[:payload][:referrer] = referrer if referrer
       payload[:payload][:title] = title || ""
       payload[:payload][:data] = validated_data unless validated_data.empty?
+      payload[:payload][:id] = @user_id if @user_id
 
       # Send the request
       send_event(payload)
+    end
+
+    # Identifies a user and associates them with the current session
+    #
+    # This method sends an event with a distinct ID to identify a specific user,
+    # allowing you to track their activity across sessions and devices. The ID
+    # can be any unique identifier such as a user ID, email, or customer ID.
+    #
+    # @param unique_id [String] unique identifier for the user (max 50 characters)
+    # @param website_id [String, nil] website ID (uses default if not provided)
+    # @param hostname [String, nil] domain name (uses default if not provided)
+    # @param url [String] the URL where identification occurs (default: "/")
+    # @param data [Hash] custom user properties to attach
+    #
+    # @return [Models::Response] response containing sessionId and visitId
+    #
+    # @raise [ValidationError] if required parameters are missing or invalid
+    # @raise [APIError] if the API request fails
+    #
+    # @example Identify a user by ID
+    #   events.identify("user_12345")
+    #
+    # @example Identify with custom user properties
+    #   events.identify("user_12345",
+    #     data: {
+    #       email: "john@example.com",
+    #       name: "John Doe",
+    #       plan: "premium",
+    #       signup_date: "2024-01-15"
+    #     }
+    #   )
+    #
+    # @example Identify with specific website
+    #   events.identify("customer_789",
+    #     website_id: "different-site-id",
+    #     data: { subscription: "annual" }
+    #   )
+    def identify(unique_id, website_id: nil, hostname: nil, url: "/", data: {})
+      # Validate required parameters
+      raise ValidationError, "unique_id is required" if unique_id.nil? || unique_id.empty?
+      raise ValidationError, "unique_id cannot exceed 50 characters" if unique_id.length > 50
+
+      # Store the user ID so it persists across subsequent events
+      @user_id = unique_id
+
+      # Use provided website_id or fall back to default
+      site_id = website_id || @website_id
+      raise ValidationError, "website_id is required" if site_id.nil? || site_id.empty?
+
+      # Use provided hostname or fall back to default
+      host = hostname || @default_hostname
+      raise ValidationError, "hostname is required" if host.nil? || host.empty?
+
+      # Validate and sanitize user data
+      validated_data = validate_event_data(data)
+
+      # Build the payload for user identification
+      # Use type: "identify" to store user properties (not type: "event")
+      # The payload needs BOTH the id field AND the data field
+      payload = {
+        type: "identify",
+        payload: {
+          website: site_id,
+          hostname: host,
+          url: url,
+          id: unique_id,        # The user identifier
+          # Required fields per Umami API documentation
+          screen: "1920x1080",  # Default screen resolution
+          language: "en-US",    # Default language
+          data: validated_data  # User properties go in the data field
+        }
+      }
+
+      # Send the request
+      send_event(payload)
+    end
+
+    # Clears the current user identification
+    #
+    # After calling this method, subsequent events will not include a user ID
+    # until identify is called again.
+    #
+    # @return [nil]
+    #
+    # @example Clear user identification (e.g., after logout)
+    #   events.reset_user
+    def reset_user
+      @user_id = nil
     end
 
     private

@@ -19,3 +19,9 @@ This approach allows the user to:
 ## Project Context
 
 This is a Ruby client gem for the Umami Analytics API. See IMPLEMENTATION_PLAN.md for the full specification and step-by-step implementation details.
+
+## Documentation Resources
+
+- **Umami Official Documentation**: https://github.com/umami-software/docs
+  - Use this repository to look up API endpoints, authentication methods, and feature documentation
+  - Always check the docs before implementing new features
