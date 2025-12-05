@@ -641,6 +641,92 @@ module UmamiClient
       connection.post("/api/reports/attribution", body)
     end
 
+    # Executes a breakdown report to segment data by dimensions
+    #
+    # Analyzes data across multiple dimensions to identify patterns in user behavior.
+    # Break down metrics by operating system, country, device, browser, and more to
+    # understand how different segments interact with your site.
+    #
+    # @param website_id [String] the website ID
+    # @param start_date [Time, String] start date (Time object or ISO 8601 string)
+    # @param end_date [Time, String] end date (Time object or ISO 8601 string)
+    # @param fields [Array<String>] dimension fields to segment by
+    #   Available fields: path, title, query, referrer, browser, os, device,
+    #   country, region, city, hostname, tag, event
+    # @param filters [Hash, nil] optional filters (country, device, browser, os, etc.)
+    #
+    # @return [Response] response containing breakdown data with metrics by dimension
+    #   Each record includes: views, visitors, visits, bounces, totaltime
+    #   Plus dimension values for selected fields
+    #
+    # @raise [ValidationError] if required parameters are missing or invalid
+    # @raise [AuthenticationError] if not authenticated
+    # @raise [APIError] if the API request fails
+    #
+    # @example Breakdown by operating system
+    #   response = client.reports.breakdown(
+    #     "website-id",
+    #     Time.now - 30.days,
+    #     Time.now,
+    #     ["os"]
+    #   )
+    #
+    #   response.body.each do |record|
+    #     puts "#{record['os']}: #{record['visitors']} visitors, #{record['views']} views"
+    #   end
+    #
+    # @example Breakdown by country and device
+    #   response = client.reports.breakdown(
+    #     "website-id",
+    #     Time.now - 30.days,
+    #     Time.now,
+    #     ["country", "device"]
+    #   )
+    #
+    #   response.body.each do |record|
+    #     puts "#{record['country']} on #{record['device']}: #{record['visitors']} visitors"
+    #   end
+    #
+    # @example Breakdown by browser with filters
+    #   response = client.reports.breakdown(
+    #     "website-id",
+    #     Time.now - 7.days,
+    #     Time.now,
+    #     ["browser"],
+    #     filters: { country: "US" }
+    #   )
+    def breakdown(website_id, start_date, end_date, fields, filters: nil)
+      raise ValidationError, "website_id is required" if website_id.nil? || website_id.empty?
+      raise ValidationError, "start_date is required" if start_date.nil?
+      raise ValidationError, "end_date is required" if end_date.nil?
+      raise ValidationError, "fields is required" if fields.nil?
+      raise ValidationError, "fields must be an array" unless fields.is_a?(Array)
+      raise ValidationError, "fields must not be empty" if fields.empty?
+
+      # Available fields
+      valid_fields = %w[path title query referrer browser os device country region city hostname tag event]
+
+      # Validate each field
+      fields.each do |field|
+        unless valid_fields.include?(field.to_s)
+          raise ValidationError, "Invalid field '#{field}'. Valid fields: #{valid_fields.join(', ')}"
+        end
+      end
+
+      body = {
+        websiteId: website_id,
+        type: "breakdown",
+        parameters: {
+          startDate: format_date(start_date),
+          endDate: format_date(end_date),
+          fields: fields.map(&:to_s)
+        }
+      }
+      body[:filters] = filters if filters
+
+      connection.post("/api/reports/breakdown", body)
+    end
+
     private
 
     # Formats a date for API consumption
