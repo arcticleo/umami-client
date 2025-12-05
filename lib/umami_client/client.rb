@@ -5,7 +5,7 @@ require_relative "connection"
 module UmamiClient
   # Main client class for interacting with the Umami API
   class Client
-    attr_reader :api_key, :username, :password, :base_url, :timeout, :connection, :events, :websites, :stats
+    attr_reader :api_key, :username, :password, :base_url, :timeout, :connection, :events, :websites, :stats, :event_data
 
     # Creates a new client instance
     #
@@ -63,6 +63,10 @@ module UmamiClient
       )
 
       @stats = Stats.new(
+        connection: @connection
+      )
+
+      @event_data = EventData.new(
         connection: @connection
       )
     end

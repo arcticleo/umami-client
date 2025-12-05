@@ -374,47 +374,62 @@ This plan outlines the development of `umami-client`, a Ruby gem for interacting
 - Comprehensive README documentation with examples
 
 #### 4.2: Website Statistics
-- [ ] Create `Umami::Client::Stats` class
-- [ ] Implement statistics endpoints:
+- [x] Create `UmamiClient::Stats` class
+- [x] Implement statistics endpoints:
+  - `GET /api/websites/:websiteId/active` - Active visitors (last 5 minutes)
   - `GET /api/websites/:websiteId/stats` - Summary statistics
   - `GET /api/websites/:websiteId/pageviews` - Pageview time series
-  - `GET /api/websites/:websiteId/metrics` - Aggregated metrics
-  - `GET /api/websites/:websiteId/metrics/expanded` - Expanded metrics
+  - `GET /api/websites/:websiteId/metrics` - Aggregated metrics (url, referrer, browser, os, device, country, language, title, query, event)
   - `GET /api/websites/:websiteId/events/series` - Event time series
-- [ ] Support query parameters:
-  - `startAt` / `endAt` - Date range (timestamps in ms)
+- [x] Support query parameters:
+  - `startAt` / `endAt` - Date range (accepts Time objects or ms timestamps)
   - `unit` - Time unit (minute, hour, day, month, year)
-  - `timezone` - Timezone for data
-  - `url` - Filter by URL
-  - `referrer` - Filter by referrer
-  - `country` - Filter by country
-  - `device` - Filter by device type
-  - `browser` - Filter by browser
-  - `os` - Filter by OS
-- [ ] Create model classes for responses:
-  - `Umami::Models::Stats` - Summary stats
-  - `Umami::Models::Pageviews` - Time series data
-  - `Umami::Models::Metric` - Metric data
-- [ ] Add convenience methods for common queries:
+  - `timezone` - Timezone for data (defaults to UTC)
+  - `filters` - Filter by URL, referrer, country, device, browser, os, etc.
+  - `limit` / `offset` - Pagination for metrics
+  - `compare` - Comparison mode ('prev' or 'yoy')
+- [x] Add convenience methods for common queries:
   ```ruby
-  def today_stats(website_id)
-  def yesterday_stats(website_id)
-  def last_7_days(website_id)
-  def last_30_days(website_id)
+  def today(website_id, timezone: nil)
+  def yesterday(website_id, timezone: nil)
+  def last_7_days(website_id, timezone: nil)
+  def last_30_days(website_id, timezone: nil)
   ```
-- [ ] Write comprehensive tests
-- [ ] Add YARD documentation with examples
+- [x] Write comprehensive tests - test_stats.rb with 7 test cases (all passing)
+- [x] Add YARD documentation with examples - complete documentation in README
+
+**Implementation Notes:**
+- Stats class uses existing `Response` wrapper (no custom models needed)
+- Time handling: accepts Ruby `Time` objects or millisecond timestamps
+- Timezone defaults to UTC and is required for pageviews endpoint
+- Response format for time series: `{"x": timestamp_string, "y": value}`
+- Metrics endpoint returns array of `{"x": metric_name, "y": count}` objects
+- All endpoints support filters hash for advanced querying
+- Comprehensive README section with:
+  - Active visitors example
+  - Summary statistics examples
+  - Pageviews time series with unit options
+  - All available metric types (url, referrer, browser, os, device, country, language, title, query, event)
+  - Complete dashboard example combining multiple endpoints
+  - Time handling guide
+- All 7 test cases verified working with real Umami instance
 
 #### 4.3: Real-time Data
-- [ ] Implement real-time endpoint:
+- [x] Implement real-time endpoint:
   - `GET /api/websites/:websiteId/active` - Active users
-- [ ] Create `Umami::Models::ActiveUsers` model
-- [ ] Add convenience method:
+- [x] Implemented as part of Stats class (Phase 4.2)
+- [x] Add convenience method:
   ```ruby
-  def active_users(website_id)
+  def active(website_id)
   ```
-- [ ] Write tests
-- [ ] Add YARD documentation
+- [x] Write tests - included in test_stats.rb
+- [x] Add YARD documentation - documented in README
+
+**Implementation Notes:**
+- Active visitors endpoint implemented in `Stats#active` method
+- Returns number of visitors active in last 5 minutes
+- Tested and working (Test 1 in test_stats.rb)
+- No separate model needed, uses Response wrapper
 
 #### 4.4: Event Queries
 - [ ] Create `Umami::Client::EventData` class

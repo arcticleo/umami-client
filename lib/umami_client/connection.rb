@@ -170,8 +170,8 @@ module UmamiClient
         end
 
         req.headers["Content-Type"] = "application/json"
-        req.params = params if params.any?
-        req.body = body if body.any? && %i[post put].include?(method)
+        req.params = params if params && params.any?
+        req.body = body if body && body.any? && %i[post put].include?(method)
       end
 
       handle_response(response)
