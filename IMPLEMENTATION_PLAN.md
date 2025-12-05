@@ -507,16 +507,6 @@ This workflow successfully retrieves:
 - All visitor properties (email, name, plan, etc.)
 - Complete activity log (all pageviews and events)
 
-#### 4.6: Reports (Advanced - Future)
-- [ ] Implement reports endpoints if available:
-  - Funnel reports
-  - Journey reports
-  - Retention reports
-  - Goal reports
-- [ ] Create model classes for each report type
-- [ ] Write tests
-- [ ] Add YARD documentation
-
 **Deliverables**:
 - Complete analytics retrieval API
 - Model classes for all response types
@@ -533,18 +523,157 @@ This workflow successfully retrieves:
 
 ---
 
-## Phase 5: Advanced Features & Management APIs
+## Phase 5: Reports API
+
+### Goals
+- Implement comprehensive reports system
+- Support all 8 report types
+- Enable CRUD operations for reports
+- Provide advanced analytics capabilities
+
+### Tasks
+
+#### 5.0: Reports Core (CRUD)
+- [ ] Create `UmamiClient::Reports` class
+- [ ] Implement core report endpoints:
+  - `GET /api/reports` - List all reports by website ID with pagination
+  - `POST /api/reports` - Create a new report
+  - `GET /api/reports/:reportId` - Get specific report by ID
+  - `POST /api/reports/:reportId` - Update an existing report
+  - `DELETE /api/reports/:reportId` - Delete a report
+- [ ] Support pagination for report lists
+- [ ] Write tests for CRUD operations
+- [ ] Add YARD documentation
+
+#### 5.1: Funnel Reports
+- [ ] Implement `POST /api/reports/funnel` endpoint
+- [ ] Support funnel configuration:
+  - Sequential steps definition
+  - Time windows between steps
+  - Conversion tracking
+  - Drop-off rate calculation
+- [ ] Create model class for funnel results
+- [ ] Write tests with multi-step funnels
+- [ ] Add YARD documentation with examples
+- [ ] Document common funnel patterns (signup, checkout, onboarding)
+
+#### 5.2: Journey Reports
+- [ ] Implement `POST /api/reports/journey` endpoint
+- [ ] Support journey tracking:
+  - Multi-step user path analysis
+  - Entry and exit points
+  - Path visualization data
+  - Common navigation patterns
+- [ ] Create model class for journey results
+- [ ] Write tests for user journey flows
+- [ ] Add YARD documentation
+- [ ] Document use cases (user flow analysis, navigation patterns)
+
+#### 5.3: Retention Reports
+- [ ] Implement `POST /api/reports/retention` endpoint
+- [ ] Support retention analysis:
+  - Time period configuration
+  - Return frequency tracking
+  - Cohort analysis
+  - Stickiness metrics
+- [ ] Create model class for retention results
+- [ ] Write tests for retention periods
+- [ ] Add YARD documentation
+- [ ] Document interpretation of retention data
+
+#### 5.4: Goal Reports
+- [ ] Implement `POST /api/reports/goals` endpoint
+- [ ] Support goal tracking:
+  - Pageview goals
+  - Event goals
+  - Conversion parameters
+  - Goal completion metrics
+- [ ] Create model class for goal results
+- [ ] Write tests for different goal types
+- [ ] Add YARD documentation
+- [ ] Document goal configuration patterns
+
+#### 5.5: Attribution Reports
+- [ ] Implement `POST /api/reports/attribution` endpoint
+- [ ] Support attribution models:
+  - First-click attribution
+  - Last-click attribution
+  - Marketing touchpoint analysis
+  - Conversion source tracking
+- [ ] Create model class for attribution results
+- [ ] Write tests for attribution models
+- [ ] Add YARD documentation
+- [ ] Document attribution model use cases
+
+#### 5.6: Breakdown Reports
+- [ ] Implement `POST /api/reports/breakdown` endpoint
+- [ ] Support breakdown dimensions:
+  - Operating system
+  - Country/location
+  - Device type
+  - Browser
+  - Custom segments and filters
+- [ ] Create model class for breakdown results
+- [ ] Write tests for various dimensions
+- [ ] Add YARD documentation
+- [ ] Document segmentation strategies
+
+#### 5.7: Revenue Reports
+- [ ] Implement `POST /api/reports/revenue` endpoint
+- [ ] Support revenue tracking:
+  - Transaction data capture
+  - Currency support
+  - Geographic revenue breakdown
+  - Revenue metrics and trends
+- [ ] Create model class for revenue results
+- [ ] Write tests for revenue calculations
+- [ ] Add YARD documentation
+- [ ] Document e-commerce integration patterns
+
+#### 5.8: UTM Reports
+- [ ] Implement `POST /api/reports/utm` endpoint
+- [ ] Support UTM parameter tracking:
+  - Source tracking
+  - Medium analysis
+  - Campaign performance
+  - Content and term tracking
+- [ ] Create model class for UTM results
+- [ ] Write tests for UTM parameters
+- [ ] Add YARD documentation
+- [ ] Document campaign tracking best practices
+
+**Deliverables**:
+- Complete Reports API implementation
+- All 8 report types functional
+- CRUD operations for report management
+- Model classes for all report types
+- Comprehensive test suite
+- Complete YARD documentation
+- README documentation with examples
+
+**Definition of Done**:
+- All report CRUD operations working
+- All 8 report types implemented and tested
+- Tests pass with good coverage
+- RuboCop checks pass
+- Can create and run reports on test Umami instance
+- All public methods have YARD documentation with examples
+- README includes report examples for each type
+
+---
+
+## Phase 6: Advanced Features & Management APIs
 
 ### Goals
 - Implement user management
 - Add team management
-- Support session queries
 - Implement administrative functions
+- Add links and pixels support
 
 ### Tasks
 
-#### 5.1: User Management
-- [ ] Create `Umami::Client::Users` class
+#### 6.1: User Management
+- [ ] Create `UmamiClient::Users` class
 - [ ] Implement endpoints:
   - `GET /api/users` - List users
   - `GET /api/users/:id` - Get user
@@ -552,12 +681,12 @@ This workflow successfully retrieves:
   - `PUT /api/users/:id` - Update user
   - `DELETE /api/users/:id` - Delete user
   - `GET /api/me` - Current user info
-- [ ] Create `Umami::Models::User` model
+- [ ] Create `UmamiClient::User` model
 - [ ] Write tests
 - [ ] Add YARD documentation
 
-#### 5.2: Team Management
-- [ ] Create `Umami::Client::Teams` class
+#### 6.2: Team Management
+- [ ] Create `UmamiClient::Teams` class
 - [ ] Implement endpoints:
   - `GET /api/teams` - List teams
   - `GET /api/teams/:id` - Get team
@@ -565,30 +694,20 @@ This workflow successfully retrieves:
   - `PUT /api/teams/:id` - Update team
   - `DELETE /api/teams/:id` - Delete team
   - Team member management
-- [ ] Create `Umami::Models::Team` model
+- [ ] Create `UmamiClient::Team` model
 - [ ] Write tests
 - [ ] Add YARD documentation
 
-#### 5.3: Session Management
-- [ ] Create `Umami::Client::Sessions` class
-- [ ] Implement session queries:
-  - `GET /api/websites/:websiteId/sessions` - List sessions
-  - `GET /api/sessions/:id` - Session details
-  - Session filtering and pagination
-- [ ] Create `Umami::Models::Session` model
-- [ ] Write tests
-- [ ] Add YARD documentation
-
-#### 5.4: Links & Pixels (If Available)
-- [ ] Create `Umami::Client::Links` class for link tracking
-- [ ] Create `Umami::Client::Pixels` class for pixel tracking
+#### 6.3: Links & Pixels (If Available)
+- [ ] Create `UmamiClient::Links` class for link tracking
+- [ ] Create `UmamiClient::Pixels` class for pixel tracking
 - [ ] Implement relevant endpoints
 - [ ] Create model classes
 - [ ] Write tests
 - [ ] Add YARD documentation
 
-#### 5.5: Admin Functions
-- [ ] Create `Umami::Client::Admin` class
+#### 6.4: Admin Functions
+- [ ] Create `UmamiClient::Admin` class
 - [ ] Implement admin-only endpoints
 - [ ] Add proper permission checking
 - [ ] Write tests
@@ -609,7 +728,7 @@ This workflow successfully retrieves:
 
 ---
 
-## Phase 6: Rails Integration & Middleware
+## Phase 7: Rails Integration & Middleware
 
 ### Goals
 - Create Rails integration gem/plugin
@@ -619,13 +738,13 @@ This workflow successfully retrieves:
 
 ### Tasks
 
-#### 6.1: Rails Integration Setup
+#### 7.1: Rails Integration Setup
 - [ ] Create `lib/umami/rails.rb` for Rails-specific code
 - [ ] Create Railtie for automatic configuration
 - [ ] Add engine for mounting if needed
 - [ ] Set up Rails generators structure
 
-#### 6.2: Rack Middleware
+#### 7.2: Rack Middleware
 - [ ] Create `Umami::Middleware::Tracker` Rack middleware:
   ```ruby
   class Tracker
@@ -650,7 +769,7 @@ This workflow successfully retrieves:
 - [ ] Write tests for middleware
 - [ ] Add YARD documentation
 
-#### 6.3: Rails Generators
+#### 7.3: Rails Generators
 - [ ] Create `rails generate umami:install` generator:
   - Generate `config/initializers/umami.rb`
   - Add configuration template with comments
@@ -662,7 +781,7 @@ This workflow successfully retrieves:
 - [ ] Write tests for generators
 - [ ] Add YARD documentation
 
-#### 6.4: View Helpers
+#### 7.4: View Helpers
 - [ ] Create `Umami::Rails::Helpers` module:
   ```ruby
   def umami_script_tag(website_id = nil, **options)
@@ -675,7 +794,7 @@ This workflow successfully retrieves:
 - [ ] Write tests for helpers
 - [ ] Add YARD documentation
 
-#### 6.5: Controller Concerns
+#### 7.5: Controller Concerns
 - [ ] Create `Umami::Rails::Trackable` concern:
   ```ruby
   module Trackable
@@ -701,7 +820,7 @@ This workflow successfully retrieves:
 - [ ] Write tests for concern
 - [ ] Add YARD documentation
 
-#### 6.6: Background Job Integration
+#### 7.6: Background Job Integration
 - [ ] Create `Umami::TrackEventJob` ActiveJob:
   ```ruby
   class TrackEventJob < ApplicationJob
@@ -733,7 +852,7 @@ This workflow successfully retrieves:
 
 ---
 
-## Phase 7: Documentation & Examples
+## Phase 8: Documentation & Examples
 
 ### Goals
 - Create comprehensive README
@@ -743,7 +862,7 @@ This workflow successfully retrieves:
 
 ### Tasks
 
-#### 7.1: README & Getting Started
+#### 8.1: README & Getting Started
 - [ ] Write comprehensive README.md:
   - Project description
   - Installation instructions
@@ -759,7 +878,7 @@ This workflow successfully retrieves:
 - [ ] Create CODE_OF_CONDUCT.md
 - [ ] Add badges (build status, gem version, coverage)
 
-#### 7.2: Usage Guides
+#### 8.2: Usage Guides
 - [ ] Create `docs/` directory with guides:
   - `01-installation.md` - Installation and setup
   - `02-configuration.md` - Configuration options
@@ -774,7 +893,7 @@ This workflow successfully retrieves:
 - [ ] Create troubleshooting section
 - [ ] Add FAQ
 
-#### 7.3: Example Applications
+#### 8.3: Example Applications
 - [ ] Create `examples/` directory with:
   - `simple_ruby/` - Plain Ruby example
   - `rails_app/` - Complete Rails integration example
@@ -784,7 +903,7 @@ This workflow successfully retrieves:
 - [ ] Ensure examples run successfully
 - [ ] Add to CI to verify examples stay working
 
-#### 7.4: API Documentation
+#### 8.4: API Documentation
 - [ ] Run `yard doc` to generate full API documentation
 - [ ] Review all YARD docs for completeness
 - [ ] Add examples to all public methods
@@ -792,7 +911,7 @@ This workflow successfully retrieves:
 - [ ] Publish docs to GitHub Pages or RubyDoc.info
 - [ ] Add link to README
 
-#### 7.5: Video & Visual Documentation
+#### 8.5: Video & Visual Documentation
 - [ ] Create architecture diagram
 - [ ] Create flow diagrams for:
   - Authentication flow
@@ -818,7 +937,7 @@ This workflow successfully retrieves:
 
 ---
 
-## Phase 8: Testing, Polish & Release
+## Phase 9: Testing, Polish & Release
 
 ### Goals
 - Achieve 100% test coverage
@@ -828,7 +947,7 @@ This workflow successfully retrieves:
 
 ### Tasks
 
-#### 8.1: Test Coverage & Quality
+#### 9.1: Test Coverage & Quality
 - [ ] Review test coverage report
 - [ ] Add missing tests to reach 100% coverage
 - [ ] Add integration tests with real Umami instance
@@ -838,7 +957,7 @@ This workflow successfully retrieves:
 - [ ] Fix any flaky tests
 - [ ] Ensure all tests pass consistently
 
-#### 8.2: Performance Optimization
+#### 9.2: Performance Optimization
 - [ ] Profile gem performance
 - [ ] Optimize HTTP client configuration
 - [ ] Implement connection pooling if needed
@@ -846,7 +965,7 @@ This workflow successfully retrieves:
 - [ ] Benchmark against umami-python for reference
 - [ ] Document performance characteristics
 
-#### 8.3: Security Review
+#### 9.3: Security Review
 - [ ] Review authentication implementation
 - [ ] Audit token storage and handling
 - [ ] Check for injection vulnerabilities
@@ -855,7 +974,7 @@ This workflow successfully retrieves:
 - [ ] Run Bundler Audit for dependency issues
 - [ ] Consider security scanning tools (Brakeman, etc.)
 
-#### 8.4: Code Quality & Polish
+#### 9.4: Code Quality & Polish
 - [ ] Run RuboCop and fix all offenses
 - [ ] Review all public APIs for consistency
 - [ ] Ensure consistent naming conventions
@@ -864,14 +983,14 @@ This workflow successfully retrieves:
 - [ ] Add helpful debug logging
 - [ ] Clean up any TODO comments
 
-#### 8.5: Versioning & Changelog
+#### 9.5: Versioning & Changelog
 - [ ] Choose version number (suggest 0.1.0 for initial release)
 - [ ] Update version in `lib/umami/version.rb`
 - [ ] Update CHANGELOG.md with all changes
 - [ ] Tag release in git
 - [ ] Create GitHub release with notes
 
-#### 8.6: Gem Publishing
+#### 9.6: Gem Publishing
 - [ ] Update gemspec with final details
 - [ ] Build gem: `gem build umami-client.gemspec`
 - [ ] Test gem installation locally
@@ -879,7 +998,7 @@ This workflow successfully retrieves:
 - [ ] Verify gem page on RubyGems.org
 - [ ] Test installation from RubyGems
 
-#### 8.7: Post-Release
+#### 9.7: Post-Release
 - [ ] Announce on social media/forums
 - [ ] Submit to Ruby Weekly
 - [ ] Add to Awesome Ruby lists
@@ -1155,10 +1274,14 @@ end
 - ✅ Published to RubyGems.org
 
 ### Version 0.2.0
-- ✅ Rails integration (Phase 6)
 - ✅ Complete stats API (Phase 4 all)
-- ✅ Management APIs (Phase 5)
-- ✅ Example applications (Phase 7)
+- ✅ Reports API (Phase 5)
+- ✅ Management APIs (Phase 6)
+- ✅ Test coverage > 95%
+
+### Version 0.3.0
+- ✅ Rails integration (Phase 7)
+- ✅ Example applications (Phase 8)
 - ✅ Test coverage = 100%
 
 ### Version 1.0.0 (Stable)
@@ -1178,12 +1301,13 @@ end
 - **Phase 2**: 1 week - HTTP client and authentication
 - **Phase 3**: 1-2 weeks - Event tracking (core functionality)
 - **Phase 4**: 2 weeks - Analytics retrieval
-- **Phase 5**: 1-2 weeks - Management APIs
-- **Phase 6**: 2 weeks - Rails integration
-- **Phase 7**: 1 week - Documentation and examples
-- **Phase 8**: 1 week - Testing, polish, release
+- **Phase 5**: 2-3 weeks - Reports API (8 report types)
+- **Phase 6**: 1-2 weeks - Management APIs
+- **Phase 7**: 2 weeks - Rails integration
+- **Phase 8**: 1 week - Documentation and examples
+- **Phase 9**: 1 week - Testing, polish, release
 
-**Total**: 10-13 weeks for complete implementation
+**Total**: 11-15 weeks for complete implementation
 
 **MVP (v0.1.0)**: Phases 1-3 + basic Phase 4 = 4-5 weeks
 
