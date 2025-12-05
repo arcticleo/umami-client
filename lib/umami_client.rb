@@ -11,6 +11,7 @@ require_relative "umami_client/websites"
 require_relative "umami_client/stats"
 require_relative "umami_client/event_data"
 require_relative "umami_client/sessions"
+require_relative "umami_client/reports"
 require_relative "umami_client/client"
 
 module UmamiClient
