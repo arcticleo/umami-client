@@ -8,6 +8,7 @@ require_relative "umami_client/website"
 require_relative "umami_client/connection"
 require_relative "umami_client/events"
 require_relative "umami_client/websites"
+require_relative "umami_client/stats"
 require_relative "umami_client/client"
 
 module UmamiClient
