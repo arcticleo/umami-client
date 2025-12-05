@@ -727,6 +727,96 @@ module UmamiClient
       connection.post("/api/reports/breakdown", body)
     end
 
+    # Execute a revenue report
+    #
+    # Revenue reports enable tracking and analysis of financial data associated with user
+    # conversions and transactions. Returns time-series data, geographic distribution,
+    # and aggregate statistics including sum, count, unique visitors, and average transaction value.
+    #
+    # @param website_id [String] website ID
+    # @param start_date [Time, String] start date (ISO 8601 or Time object)
+    # @param end_date [Time, String] end date (ISO 8601 or Time object)
+    # @param timezone [String] timezone (e.g., "America/Los_Angeles", "Europe/London")
+    # @param currency [String] ISO 4217 currency code (e.g., "USD", "EUR", "GBP")
+    # @param filters [Array<Hash>, nil] optional filters
+    #
+    # @return [Response] response with revenue data
+    #
+    # @example Basic revenue report
+    #   response = client.reports.revenue(
+    #     website_id,
+    #     start_date,
+    #     end_date,
+    #     "America/New_York",
+    #     "USD"
+    #   )
+    #
+    #   # Time-series revenue data
+    #   response.data['chart'].each do |point|
+    #     puts "#{point['t']}: $#{point['y']}"
+    #   end
+    #
+    #   # Revenue by country
+    #   response.data['country'].each do |country|
+    #     puts "#{country['name']}: $#{country['value']}"
+    #   end
+    #
+    #   # Aggregate totals
+    #   totals = response.data['total']
+    #   puts "Total Revenue: $#{totals['sum']}"
+    #   puts "Transactions: #{totals['count']}"
+    #   puts "Unique Customers: #{totals['unique_count']}"
+    #   puts "Average Order Value: $#{totals['average'].round(2)}"
+    #
+    # @example Revenue with filters
+    #   response = client.reports.revenue(
+    #     website_id,
+    #     start_date,
+    #     end_date,
+    #     "America/Los_Angeles",
+    #     "USD",
+    #     filters: [
+    #       { type: 'device', value: 'mobile' }
+    #     ]
+    #   )
+    #
+    # @example Revenue by country analysis
+    #   response = client.reports.revenue(
+    #     website_id,
+    #     start_date,
+    #     end_date,
+    #     "UTC",
+    #     "EUR"
+    #   )
+    #
+    #   total_revenue = response.data['total']['sum']
+    #   response.data['country'].each do |country|
+    #     percentage = (country['value'].to_f / total_revenue * 100).round(1)
+    #     puts "#{country['name']}: €#{country['value']} (#{percentage}%)"
+    #   end
+    #
+    def revenue(website_id, start_date, end_date, timezone, currency, filters: nil)
+      raise ValidationError, "website_id is required" if website_id.nil? || website_id.empty?
+      raise ValidationError, "start_date is required" if start_date.nil?
+      raise ValidationError, "end_date is required" if end_date.nil?
+      raise ValidationError, "timezone is required" if timezone.nil? || timezone.empty?
+      raise ValidationError, "currency is required" if currency.nil? || currency.empty?
+
+      body = {
+        websiteId: website_id,
+        type: "revenue",
+        parameters: {
+          startDate: format_date(start_date),
+          endDate: format_date(end_date),
+          timezone: timezone,
+          currency: currency.upcase
+        }
+      }
+      body[:filters] = filters if filters
+
+      connection.post("/api/reports/revenue", body)
+    end
+
     private
 
     # Formats a date for API consumption
