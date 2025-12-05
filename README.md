@@ -165,20 +165,19 @@ client.events.track_event(
 
 ### User Identification
 
-Identify users to track their activity across sessions and devices. User properties are stored persistently and appear in the Properties column of the Session detail view in your Umami dashboard.
+Use `identify` to associate a unique identifier with your website visitors so you can track their activity across sessions and devices. User properties are stored persistently and appear in the Properties column of the Session detail view in your Umami dashboard.
 
 #### Basic Usage
 
 ```ruby
-# Identify a user by unique ID (email, user ID, customer ID, etc.)
-client.events.identify("user@example.com")
+# Identify a website visitor by their unique ID (email, customer ID, etc.)
+client.events.identify("customer_12345")
 
-# Identify with custom user properties
+# Identify a visitor with custom properties
 client.events.identify(
-  "user_12345",
+  "customer@example.com",
   data: {
     name: "John Doe",
-    email: "john@example.com",
     plan: "premium",
     signup_date: "2024-01-15",
     country: "USA",
@@ -190,43 +189,46 @@ client.events.identify(
 
 #### When to Call Identify
 
-**Call `identify` once per user session, typically:**
+**Call `identify` once per visitor session, typically:**
 
-1. **After user login/authentication**
+1. **After your website visitor logs into your application**
    ```ruby
-   def after_sign_in(user)
+   # In your application's authentication controller
+   def after_sign_in(visitor)
      UmamiClient::Client.new.events.identify(
-       user.email,
+       visitor.email,  # Your website visitor's email
        data: {
-         name: user.name,
-         plan: user.subscription_plan,
-         signup_date: user.created_at.to_date.to_s
+         name: visitor.name,
+         plan: visitor.subscription_plan,
+         signup_date: visitor.created_at.to_date.to_s
        }
      )
    end
    ```
 
-2. **After user registration**
+2. **After a visitor registers on your website**
    ```ruby
-   def after_create_user(user)
+   # When a new user signs up for your service
+   def after_create_account(visitor)
      UmamiClient::Client.new.events.identify(
-       user.id.to_s,
+       visitor.id.to_s,
        data: {
-         name: user.name,
-         source: user.signup_source,
+         name: visitor.name,
+         source: visitor.signup_source,
          plan: "free"
        }
      )
    end
    ```
 
-3. **When user properties change** (optional - update important changes)
+3. **When visitor properties change**
    ```ruby
-   def after_upgrade_plan(user)
+   # When a customer upgrades their plan
+   def after_upgrade_subscription(customer)
      UmamiClient::Client.new.events.identify(
-       user.email,
+       customer.email,
        data: {
-         plan: user.subscription_plan,
+         plan: customer.subscription_plan,
          upgraded_at: Time.now.to_s
        }
      )
@@ -236,98 +238,51 @@ client.events.identify(
 #### How Often to Call Identify
 
 **DO:**
-- ✅ Call once per session when the user logs in
-- ✅ Call after registration to set initial user properties
-- ✅ Call when important user properties change (plan upgrade, etc.)
+- ✅ Call once per session when a website visitor logs in
+- ✅ Call after a visitor registers to set initial properties
+- ✅ Call when important visitor properties change (plan upgrade, etc.)
 
 **DON'T:**
-- ❌ Call on every page view (it's not necessary - user ID persists automatically)
+- ❌ Call on every page view (it's not necessary - visitor ID persists automatically)
 - ❌ Call multiple times in the same session with the same data
-- ❌ Call for anonymous/unauthenticated users (unless you have a persistent anonymous ID)
+- ❌ Call for anonymous/unauthenticated visitors (unless you have a persistent anonymous ID)
 
-#### User ID Persistence
+#### Visitor ID Persistence
 
-Once you call `identify`, the user ID automatically persists across all subsequent events:
+Once you call `identify`, the visitor ID automatically persists across all subsequent events:
 
 ```ruby
 client = UmamiClient::Client.new
 
-# Identify the user once
-client.events.identify("user@example.com", data: { name: "John" })
+# Identify the website visitor once
+client.events.identify("customer@example.com", data: { name: "John" })
 
-# All subsequent events automatically include the user ID
-client.events.track_pageview("/dashboard")  # ← includes user ID
-client.events.track_event("button_click")    # ← includes user ID
-client.events.track_pageview("/settings")    # ← includes user ID
+# All subsequent events automatically include the visitor ID
+client.events.track_pageview("/dashboard")  # ← includes visitor ID
+client.events.track_event("button_click")    # ← includes visitor ID
+client.events.track_pageview("/settings")    # ← includes visitor ID
 
-# Clear the user ID when done (e.g., on logout)
+# Clear the visitor ID when done (e.g., when visitor logs out)
 client.events.reset_user
 ```
-
-#### Best Practices
-
-1. **Use stable identifiers** - Use IDs that don't change (user ID, email, customer ID)
-   ```ruby
-   # Good
-   identify(user.id.to_s)           # Database ID
-   identify(user.email)              # Email address
-   identify(user.stripe_customer_id) # External service ID
-
-   # Avoid
-   identify(user.session_token)      # Changes frequently
-   identify(SecureRandom.uuid)       # Random, not persistent
-   ```
-
-2. **Keep user properties meaningful** - Store data you'll actually use for analysis
-   ```ruby
-   # Good - actionable properties
-   identify(user.email, data: {
-     plan: "premium",          # Segment by plan
-     signup_date: "2024-01-15", # Cohort analysis
-     country: "USA"             # Geographic analysis
-   })
-
-   # Too much - probably unnecessary
-   identify(user.email, data: {
-     favorite_color: "blue",
-     pet_name: "Fluffy",
-     shoe_size: 10
-   })
-   ```
-
-3. **Don't send sensitive data** - User properties are stored in Umami
-   ```ruby
-   # Bad - don't send passwords, tokens, or PII you don't need
-   identify(user.email, data: {
-     password_hash: user.encrypted_password,  # ❌ Never
-     ssn: user.social_security,               # ❌ Never
-     credit_card: user.cc_last_4              # ❌ Be careful
-   })
-   ```
-
-4. **Handle logout** - Clear user identification when users log out
-   ```ruby
-   def after_sign_out
-     client = UmamiClient::Client.new
-     client.events.reset_user  # Clears the user ID
-   end
-   ```
 
 #### Rails Integration Example
 
 ```ruby
 # app/controllers/application_controller.rb
 class ApplicationController < ActionController::Base
-  after_action :identify_user, if: :user_signed_in?
+  # Track visitors to your website (NOT Umami admin users)
+  after_action :identify_visitor, if: :user_signed_in?
 
   private
 
-  def identify_user
-    # Only identify once per session
+  def identify_visitor
+    # Only identify once per session to avoid redundant calls
     return if session[:umami_identified]
 
+    # Track your website's logged-in user/customer
     umami_client.events.identify(
-      current_user.email,
+      current_user.email,  # Your website visitor's identifier
       data: {
         name: current_user.name,
         plan: current_user.subscription_plan,
@@ -344,13 +299,13 @@ class ApplicationController < ActionController::Base
 end
 ```
 
-#### Viewing User Properties
+#### Viewing Visitor Properties in Umami Dashboard
 
 In your Umami dashboard:
 1. Navigate to **Sessions**
 2. Click on a visitor to view their session details
-3. The **Properties** column on the right shows all user properties
-4. You can also search for users by their distinct ID
+3. The **Properties** column on the right shows all visitor properties
+4. You can also search for visitors by their distinct ID
 
 ### Configuration Options
 
@@ -364,7 +319,7 @@ UmamiClient.configure do |config|
   config.default_hostname = "example.com"
 
   # Optional
-  config.user_agent = "Mozilla/5.0 ..." # Default: Safari on macOS
+  config.user_agent = "Mozilla/5.0 ..."  # Default: Safari on macOS
   config.timeout = 30                    # Request timeout in seconds
   config.max_retries = 3                 # Max retry attempts
   config.retry_delay = 0.5               # Initial retry delay
