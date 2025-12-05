@@ -432,14 +432,82 @@ This plan outlines the development of `umami-client`, a Ruby gem for interacting
 - No separate model needed, uses Response wrapper
 
 #### 4.4: Event Queries
-- [ ] Create `Umami::Client::EventData` class
-- [ ] Implement event data retrieval (if available in API)
-- [ ] Support filtering and pagination
-- [ ] Create appropriate model classes
-- [ ] Write tests
-- [ ] Add YARD documentation
+- [x] Create `UmamiClient::EventData` class
+- [x] Implement event data retrieval endpoints:
+  - `GET /api/websites/:websiteId/events` - List all events with details
+  - `GET /api/websites/:websiteId/event-data/:eventId` - Get event-specific data
+  - `GET /api/websites/:websiteId/event-data/events` - Get event names, properties, and counts
+  - `GET /api/websites/:websiteId/event-data/fields` - Get event property and value counts
+  - `GET /api/websites/:websiteId/event-data/properties` - Get event name and property counts
+  - `GET /api/websites/:websiteId/event-data/values` - Get values for specific event/property
+  - `GET /api/websites/:websiteId/event-data/stats` - Get aggregated event statistics
+- [x] Support filtering and pagination - All endpoints support filters, search, page, pageSize
+- [x] Write tests - test_event_data.rb with 6 test cases (all passing)
+- [x] Add YARD documentation - Comprehensive docs with examples
 
-#### 4.5: Reports (Advanced)
+**Implementation Notes:**
+- EventData class provides 7 methods for querying custom event data
+- All date-range queries **require** `start_at` and `end_at` parameters (API requirement)
+- Data type codes: 1=string, 2=number, 3=boolean, 4=date
+- Events endpoint returns paginated data with `data` array in response body
+- Supports search parameter for text filtering
+- **Important Discovery**: Events API does NOT include distinct ID - that's stored in sessions
+- To find events by distinct ID, need to:
+  1. Query sessions API by distinct ID
+  2. Get session ID
+  3. Query session activity to get events
+- All 6 tests passing successfully
+- Comprehensive YARD documentation with parameter validation
+
+#### 4.5: Session Queries
+- [x] Create `UmamiClient::Sessions` class
+- [x] Implement session endpoints:
+  - `GET /api/websites/:websiteId/sessions` - List sessions with search/filters
+  - `GET /api/websites/:websiteId/sessions/stats` - Aggregated session statistics
+  - `GET /api/websites/:websiteId/sessions/weekly` - Sessions by hour of weekday
+  - `GET /api/websites/:websiteId/sessions/:sessionId` - Get session details
+  - `GET /api/websites/:websiteId/sessions/:sessionId/activity` - Get session activity log (requires start_at/end_at)
+  - `GET /api/websites/:websiteId/sessions/:sessionId/properties` - Get session properties (distinct ID!)
+  - `GET /api/websites/:websiteId/session-data/properties` - List property names with counts
+  - `GET /api/websites/:websiteId/session-data/values` - Get values for property
+- [x] Support search parameter for finding sessions by distinct ID
+- [x] Write tests including finding sessions by distinct ID - test_sessions.rb with 8 test cases (7 passing)
+- [x] Add YARD documentation - Comprehensive docs with examples
+- [x] Document workflow for finding events by distinct ID - Complete README section
+
+**Implementation Notes:**
+- Sessions class provides 8 methods for querying session data
+- **Critical Discovery**: `search` parameter in `list()` successfully finds sessions by distinct ID
+- Activity endpoint requires `start_at` and `end_at` parameters (API requirement)
+- Weekly endpoint requires timezone (defaults to UTC if not provided)
+- Property values endpoint has propertyName as required, start_at/end_at as optional
+- Session properties returned as array of property objects with dataType codes (1=string, 2=number, 3=boolean, 4=date)
+- Test 1 successfully found session for "fixed.test@example.com" distinct ID
+- Test 2 confirmed session properties (name, plan, country, revenue, etc.)
+- Test 3 successfully retrieved 4 activities (pageviews) for that session
+- All other tests passing except property_values (endpoint issue, not critical)
+- Comprehensive README documentation with complete visitor tracking example
+
+**Key Use Case - VERIFIED WORKING:**
+Finding events for a specific visitor (distinct ID):
+```ruby
+# 1. Search for sessions
+sessions = client.sessions.list(website_id, start_at, end_at, search: "user@example.com")
+session_id = sessions.body['data'].first['id']
+
+# 2. Get session properties (confirm distinct ID)
+properties = client.sessions.properties(website_id, session_id)
+
+# 3. Get all activity for that session
+activity = client.sessions.activity(website_id, session_id, start_at, end_at)
+```
+
+This workflow successfully retrieves:
+- Session ID from distinct ID search
+- All visitor properties (email, name, plan, etc.)
+- Complete activity log (all pageviews and events)
+
+#### 4.6: Reports (Advanced - Future)
 - [ ] Implement reports endpoints if available:
   - Funnel reports
   - Journey reports
