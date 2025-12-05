@@ -377,6 +377,100 @@ module UmamiClient
       connection.post("/api/reports/journey", body)
     end
 
+    # Executes a retention report to analyze user return frequency
+    #
+    # Measures website stickiness by tracking how often users return over time.
+    # Uses cohort analysis to show return rates for users who first visited on
+    # specific dates, helping identify engagement trends and user loyalty.
+    #
+    # @param website_id [String] the website ID
+    # @param start_date [Time, String] cohort period start (Time object or ISO 8601 string)
+    # @param end_date [Time, String] cohort period end (Time object or ISO 8601 string)
+    # @param timezone [String] timezone for cohort calculation (e.g., 'America/New_York', 'UTC')
+    # @param filters [Hash, nil] optional filters (country, device, browser, os, etc.)
+    #
+    # @return [Response] response containing cohort retention data
+    #   Each cohort entry contains:
+    #   - date: cohort start date
+    #   - day: days elapsed since cohort formation
+    #   - visitors: initial cohort size
+    #   - returnVisitors: count of users who returned
+    #   - percentage: return rate as a percentage
+    #
+    # @raise [ValidationError] if required parameters are missing or invalid
+    # @raise [AuthenticationError] if not authenticated
+    # @raise [APIError] if the API request fails
+    #
+    # @example Basic retention analysis
+    #   response = client.reports.retention(
+    #     "website-id",
+    #     Time.now - 30.days,
+    #     Time.now,
+    #     "America/New_York"
+    #   )
+    #
+    #   puts "Retention Analysis:"
+    #   response.body.each do |cohort|
+    #     puts "Day #{cohort['day']}: #{cohort['percentage']}% returned"
+    #   end
+    #
+    # @example Monthly retention cohorts
+    #   response = client.reports.retention(
+    #     "website-id",
+    #     Time.now - 90.days,
+    #     Time.now,
+    #     "UTC"
+    #   )
+    #
+    #   # Group by cohort date
+    #   cohorts = response.body.group_by { |c| c['date'] }
+    #   cohorts.each do |date, data|
+    #     initial = data.first['visitors']
+    #     day_30 = data.find { |d| d['day'] == 30 }&.fetch('percentage', 0)
+    #     puts "#{date}: #{initial} users, #{day_30}% retained at day 30"
+    #   end
+    #
+    # @example Retention by segment
+    #   # Mobile users
+    #   mobile = client.reports.retention(
+    #     "website-id",
+    #     Time.now - 30.days,
+    #     Time.now,
+    #     "UTC",
+    #     filters: { device: "mobile" }
+    #   )
+    #
+    #   # Desktop users
+    #   desktop = client.reports.retention(
+    #     "website-id",
+    #     Time.now - 30.days,
+    #     Time.now,
+    #     "UTC",
+    #     filters: { device: "desktop" }
+    #   )
+    #
+    #   puts "Mobile day-7 retention: #{mobile.body.find { |d| d['day'] == 7 }['percentage']}%"
+    #   puts "Desktop day-7 retention: #{desktop.body.find { |d| d['day'] == 7 }['percentage']}%"
+    def retention(website_id, start_date, end_date, timezone, filters: nil)
+      raise ValidationError, "website_id is required" if website_id.nil? || website_id.empty?
+      raise ValidationError, "start_date is required" if start_date.nil?
+      raise ValidationError, "end_date is required" if end_date.nil?
+      raise ValidationError, "timezone is required" if timezone.nil? || timezone.empty?
+
+      body = {
+        websiteId: website_id,
+        type: "retention",
+        parameters: {
+          startDate: format_date(start_date),
+          endDate: format_date(end_date),
+          timezone: timezone
+        }
+      }
+      body[:filters] = filters if filters
+
+      connection.post("/api/reports/retention", body)
+    end
+
     private
 
     # Formats a date for API consumption
