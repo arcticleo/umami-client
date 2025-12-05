@@ -179,6 +179,23 @@ A Ruby client library for the [Umami Analytics API](https://umami.is/docs/api).
 - [Common UTM Patterns](docs/utm-reports.md#common-utm-patterns)
 - [Industry Benchmarks](docs/utm-reports.md#industry-benchmarks)
 
+### [User Management](docs/user-management.md)
+
+- [Get Current User](docs/user-management.md#get-current-user)
+- [List All Users](docs/user-management.md#list-all-users)
+- [Get User by ID](docs/user-management.md#get-user-by-id)
+- [Create User](docs/user-management.md#create-user)
+- [Update User](docs/user-management.md#update-user)
+- [Delete User](docs/user-management.md#delete-user)
+- [Get User's Websites](docs/user-management.md#get-users-websites)
+- [Get User's Teams](docs/user-management.md#get-users-teams)
+- [Using the User Model](docs/user-management.md#using-the-user-model)
+- [Complete User Management Example](docs/user-management.md#complete-user-management-example)
+- [Error Handling](docs/user-management.md#error-handling)
+- [Best Practices](docs/user-management.md#best-practices)
+- [Limitations](docs/user-management.md#limitations)
+- [Common Use Cases](docs/user-management.md#common-use-cases)
+
 ### [Disabled Mode for Testing](docs/disabled-mode.md)
 
 - [Basic Usage](docs/disabled-mode.md#basic-usage)

@@ -681,17 +681,32 @@ This workflow successfully retrieves:
 ### Tasks
 
 #### 6.1: User Management
-- [ ] Create `UmamiClient::Users` class
-- [ ] Implement endpoints:
-  - `GET /api/users` - List users
-  - `GET /api/users/:id` - Get user
-  - `POST /api/users` - Create user
-  - `PUT /api/users/:id` - Update user
-  - `DELETE /api/users/:id` - Delete user
-  - `GET /api/me` - Current user info
-- [ ] Create `UmamiClient::User` model
-- [ ] Write tests
-- [ ] Add YARD documentation
+- [x] Create `UmamiClient::Users` class - lib/umami_client/users.rb
+- [x] Implement endpoints:
+  - `GET /api/admin/users` - List users with pagination and search (Users#list)
+  - `GET /api/users/:id` - Get user details (Users#get)
+  - `POST /api/users` - Create user with role (Users#create)
+  - `POST /api/users/:id` - Update user (Users#update) - API uses POST not PUT
+  - `DELETE /api/users/:id` - Delete user (Users#delete)
+  - `GET /api/me` - Current user info (Users#me)
+  - `GET /api/users/:id/websites` - Get user's websites (Users#websites)
+  - `GET /api/users/:id/teams` - Get user's teams (Users#teams)
+- [x] Create `UmamiClient::User` model - lib/umami_client/user.rb
+  - Attributes: id, username, role, created_at, website_count
+  - Methods: admin?, user?, view_only?, to_h, to_s, inspect
+  - Timestamp parsing for created_at
+- [x] Write tests - test_user_management.rb with 15 test cases (all passing)
+- [x] Add YARD documentation - comprehensive docs in docs/user-management.md
+
+**Implementation Notes:**
+- Users API is admin-only and only available on self-hosted Umami instances (not Umami Cloud)
+- Supports three roles: "admin", "user", "view-only"
+- List endpoint supports pagination (page, page_size) and search filtering
+- API requires username field even when only updating role (API quirk)
+- User model includes convenience methods for role checking
+- Comprehensive documentation with examples, best practices, and common use cases
+- All validation includes helpful error messages
+- Test suite covers CRUD operations, User model, and validation scenarios
 
 #### 6.2: Team Management
 - [ ] Create `UmamiClient::Teams` class
