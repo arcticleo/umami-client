@@ -551,6 +551,96 @@ module UmamiClient
       connection.post("/api/reports/goals", body)
     end
 
+    # Executes an attribution report to analyze marketing channel performance
+    #
+    # Shows how users engage with your marketing and what drives conversions.
+    # Uses attribution models (first-click or last-click) to credit conversion
+    # sources, revealing which channels bring traffic that converts.
+    #
+    # @param website_id [String] the website ID
+    # @param start_date [Time, String] start date (Time object or ISO 8601 string)
+    # @param end_date [Time, String] end date (Time object or ISO 8601 string)
+    # @param attribution_model [String] attribution model: "firstClick" or "lastClick"
+    # @param conversion_type [String] conversion type: "path" or "event"
+    # @param conversion_step [String] the conversion URL path or event name to track
+    # @param filters [Hash, nil] optional filters (country, device, browser, os, etc.)
+    #
+    # @return [Response] response containing attribution data by channel
+    #   - referrer: top traffic sources
+    #   - paidAds: paid advertising performance
+    #   - utm_source, utm_medium, utm_campaign, utm_content, utm_term: UTM breakdowns
+    #   - total: aggregate metrics (pageviews, visitors, visits)
+    #
+    # @raise [ValidationError] if required parameters are missing or invalid
+    # @raise [AuthenticationError] if not authenticated
+    # @raise [APIError] if the API request fails
+    #
+    # @example First-click attribution for purchases
+    #   response = client.reports.attribution(
+    #     "website-id",
+    #     Time.now - 30.days,
+    #     Time.now,
+    #     "firstClick",
+    #     "event",
+    #     "purchase"
+    #   )
+    #
+    #   # Show top referrers that lead to purchases
+    #   response.body['referrer']&.each do |source|
+    #     puts "#{source['name']}: #{source['value']} conversions"
+    #   end
+    #
+    # @example Last-click attribution for signup page
+    #   response = client.reports.attribution(
+    #     "website-id",
+    #     Time.now - 30.days,
+    #     Time.now,
+    #     "lastClick",
+    #     "path",
+    #     "/signup"
+    #   )
+    #
+    #   # Analyze UTM sources
+    #   response.body['utm_source']&.each do |source|
+    #     puts "#{source['name']}: #{source['value']} conversions"
+    #   end
+    #
+    # @example Attribution with filters (mobile only)
+    #   response = client.reports.attribution(
+    #     "website-id",
+    #     Time.now - 30.days,
+    #     Time.now,
+    #     "firstClick",
+    #     "event",
+    #     "signup",
+    #     filters: { device: "mobile" }
+    #   )
+    def attribution(website_id, start_date, end_date, attribution_model, conversion_type, conversion_step, filters: nil)
+      raise ValidationError, "website_id is required" if website_id.nil? || website_id.empty?
+      raise ValidationError, "start_date is required" if start_date.nil?
+      raise ValidationError, "end_date is required" if end_date.nil?
+      raise ValidationError, "attribution_model is required" if attribution_model.nil? || attribution_model.empty?
+      raise ValidationError, "attribution_model must be 'firstClick' or 'lastClick'" unless %w[firstClick lastClick].include?(attribution_model)
+      raise ValidationError, "conversion_type is required" if conversion_type.nil? || conversion_type.empty?
+      raise ValidationError, "conversion_type must be 'path' or 'event'" unless %w[path event].include?(conversion_type)
+      raise ValidationError, "conversion_step is required" if conversion_step.nil? || conversion_step.empty?
+
+      body = {
+        websiteId: website_id,
+        type: "attribution",
+        parameters: {
+          startDate: format_date(start_date),
+          endDate: format_date(end_date),
+          model: attribution_model,
+          type: conversion_type,
+          step: conversion_step
+        }
+      }
+      body[:filters] = filters if filters
+
+      connection.post("/api/reports/attribution", body)
+    end
+
     private
 
     # Formats a date for API consumption
