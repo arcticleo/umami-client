@@ -282,6 +282,101 @@ module UmamiClient
       connection.post("/api/reports/funnel", body)
     end
 
+    # Executes a journey report to analyze user navigation paths
+    #
+    # Analyzes actual paths users take through your website, revealing common navigation
+    # patterns and unexpected routes. Unlike funnels (which track predefined sequential steps),
+    # journey reports discover all possible paths users take between points.
+    #
+    # @param website_id [String] the website ID
+    # @param start_date [Time, String] start date (Time object or ISO 8601 string)
+    # @param end_date [Time, String] end date (Time object or ISO 8601 string)
+    # @param start_step [String] entry point URL path or event name
+    # @param steps [Integer] number of steps to track (3-7, default: 5)
+    # @param end_step [String, nil] optional exit point to filter paths that reach this destination
+    # @param filters [Hash, nil] optional filters (country, device, browser, os, etc.)
+    #
+    # @return [Response] response containing array of paths with frequency data
+    #   Each path contains:
+    #   - items: array of URLs/events in sequence
+    #   - count: number of users who followed this path
+    #
+    # @raise [ValidationError] if required parameters are missing or invalid
+    # @raise [AuthenticationError] if not authenticated
+    # @raise [APIError] if the API request fails
+    #
+    # @example Discover paths from homepage
+    #   response = client.reports.journey(
+    #     "website-id",
+    #     Time.now - 30.days,
+    #     Time.now,
+    #     "/",
+    #     5
+    #   )
+    #
+    #   puts "Top navigation paths from homepage:"
+    #   response.body.first(10).each do |path|
+    #     puts "#{path['count']} users: #{path['items'].join(' → ')}"
+    #   end
+    #
+    # @example Find paths from homepage to pricing
+    #   response = client.reports.journey(
+    #     "website-id",
+    #     Time.now - 30.days,
+    #     Time.now,
+    #     "/",
+    #     5,
+    #     end_step: "/pricing"
+    #   )
+    #
+    #   puts "Most common routes to pricing page:"
+    #   response.body.each do |path|
+    #     intermediate = path['items'][1..-2].join(' → ')
+    #     puts "#{path['count']} users via: #{intermediate}"
+    #   end
+    #
+    # @example Track event-based journeys
+    #   response = client.reports.journey(
+    #     "website-id",
+    #     Time.now - 7.days,
+    #     Time.now,
+    #     "signup",
+    #     4,
+    #     end_step: "first_purchase"
+    #   )
+    #
+    # @example With filters
+    #   response = client.reports.journey(
+    #     "website-id",
+    #     Time.now - 30.days,
+    #     Time.now,
+    #     "/landing",
+    #     5,
+    #     filters: { country: "US", device: "mobile" }
+    #   )
+    def journey(website_id, start_date, end_date, start_step, steps = 5, end_step: nil, filters: nil)
+      raise ValidationError, "website_id is required" if website_id.nil? || website_id.empty?
+      raise ValidationError, "start_date is required" if start_date.nil?
+      raise ValidationError, "end_date is required" if end_date.nil?
+      raise ValidationError, "start_step is required" if start_step.nil? || start_step.empty?
+      raise ValidationError, "steps must be between 3 and 7" unless steps.between?(3, 7)
+
+      body = {
+        websiteId: website_id,
+        type: "journey",
+        parameters: {
+          startDate: format_date(start_date),
+          endDate: format_date(end_date),
+          startStep: start_step,
+          steps: steps
+        }
+      }
+      body[:parameters][:endStep] = end_step if end_step
+      body[:filters] = filters if filters
+
+      connection.post("/api/reports/journey", body)
+    end
+
     private
 
     # Formats a date for API consumption
