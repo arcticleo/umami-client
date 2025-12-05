@@ -38,5 +38,35 @@ module UmamiClient
     def new(api_key: nil, base_url: nil)
       Client.new(api_key: api_key, base_url: base_url)
     end
+
+    # Disables tracking (useful for testing)
+    #
+    # When disabled, all tracking methods will skip HTTP requests and return
+    # mock responses instead.
+    #
+    # @return [void]
+    # @example
+    #   UmamiClient.disable!
+    def disable!
+      configuration.disabled = true
+    end
+
+    # Enables tracking
+    #
+    # @return [void]
+    # @example
+    #   UmamiClient.enable!
+    def enable!
+      configuration.disabled = false
+    end
+
+    # Returns whether tracking is currently disabled
+    #
+    # @return [Boolean]
+    # @example
+    #   UmamiClient.disabled? # => false
+    def disabled?
+      configuration.disabled
+    end
   end
 end

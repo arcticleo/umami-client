@@ -263,44 +263,54 @@ This plan outlines the development of `umami-client`, a Ruby gem for interacting
 - [ ] Add YARD documentation
 
 #### 3.3: Session Identification
-- [ ] Implement `identify` method:
+- [x] Implement `identify` method:
   ```ruby
   def identify(
     unique_id,
     data: {},
-    website_id: nil
+    website_id: nil,
+    hostname: nil,
+    url: "/"
   )
   ```
-- [ ] Associate unique ID with session
-- [ ] Attach custom data to session
-- [ ] Handle ID persistence across requests
-- [ ] Write tests for identification
-- [ ] Add YARD documentation
+- [x] Associate unique ID (distinct ID) with session - uses `id` field in payload
+- [x] Attach custom visitor properties to session - uses `data` field in payload
+- [x] Handle ID persistence across requests - stored in `@user_id` instance variable
+- [x] Implement `reset_user` method to clear visitor ID (e.g., on logout)
+- [x] Tests for identification - manual testing completed with demo scripts
+- [x] Add YARD documentation - comprehensive documentation with examples
+
+**Implementation Notes:**
+- **Key Discovery**: Must use `type: "identify"` (not `type: "event"`) for visitor properties to appear in Umami dashboard
+- **Payload Structure**: Requires BOTH `id` field (visitor identifier) AND `data` field (visitor properties)
+- **Persistence**: Once `identify` is called, all subsequent `track_pageview` and `track_event` calls automatically include the visitor ID
+- **User-Agent**: Changed default from Chrome to Safari on macOS
+- **Documentation**: Added comprehensive README section clarifying that identify is for tracking website visitors, NOT Umami admin authentication
 
 #### 3.4: Disabled Mode for Testing
-- [ ] Implement disabled mode that:
-  - Skips HTTP requests when `Umami.configuration.disabled = true`
+- [x] Implement disabled mode that:
+  - Skips HTTP requests when `UmamiClient.configuration.disabled = true`
   - Still validates all parameters
   - Returns mock responses with proper structure
   - Logs what would have been tracked (if logger configured)
-- [ ] Add convenience methods:
+- [x] Add convenience methods:
   ```ruby
-  Umami.disable!
-  Umami.enable!
-  Umami.disabled?
+  UmamiClient.disable!
+  UmamiClient.enable!
+  UmamiClient.disabled?
   ```
-- [ ] Create test helper for RSpec/Minitest:
-  ```ruby
-  # test/test_helper.rb
-  Umami.disable!
+- [x] Create test helper for RSpec/Minitest - documented in README
+- [x] Write tests verifying no HTTP calls when disabled - test_disabled_mode.rb
+- [x] Add YARD documentation
 
-  # spec/spec_helper.rb
-  RSpec.configure do |config|
-    config.before(:suite) { Umami.disable! }
-  end
-  ```
-- [ ] Write tests verifying no HTTP calls when disabled
-- [ ] Add YARD documentation
+**Implementation Notes:**
+- Added `disabled` and `logger` fields to Configuration class
+- When disabled, `send_event` returns mock responses with realistic structure (200 status, UUIDs)
+- Mock responses use `SecureRandom.uuid` for sessionId and visitId
+- Logger outputs helpful messages showing what would have been tracked
+- All parameter validation still runs even when disabled
+- Works with all tracking methods: track_pageview, track_event, identify
+- README includes examples for Minitest, RSpec, and Rails test configuration
 
 #### 3.5: Batch Event Tracking (Nice to Have)
 - [ ] Implement `track_events` for batch tracking:

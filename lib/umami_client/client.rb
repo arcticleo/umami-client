@@ -53,7 +53,9 @@ module UmamiClient
         connection: @connection,
         website_id: config.website_id,
         default_hostname: config.default_hostname,
-        user_agent: config.user_agent
+        user_agent: config.user_agent,
+        disabled: config.disabled,
+        logger: config.logger
       )
 
       @websites = Websites.new(

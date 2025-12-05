@@ -39,6 +39,12 @@ module UmamiClient
     # @return [Array<Integer>] HTTP status codes that should trigger a retry
     attr_accessor :retry_statuses
 
+    # @return [Boolean] whether tracking is disabled (useful for testing)
+    attr_accessor :disabled
+
+    # @return [Logger, nil] optional logger for debugging
+    attr_accessor :logger
+
     def initialize
       @api_key = nil
       @username = nil
@@ -52,6 +58,8 @@ module UmamiClient
       @retry_delay = 0.5
       @backoff_factor = 2
       @retry_statuses = [429, 500, 502, 503, 504]
+      @disabled = false
+      @logger = nil
     end
 
     # Determines which authentication method to use

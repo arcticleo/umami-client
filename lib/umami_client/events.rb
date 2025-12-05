@@ -7,7 +7,7 @@ module UmamiClient
   # to your Umami instance. Events are sent to the /api/send endpoint which
   # does not require authentication.
   class Events
-    attr_reader :connection, :website_id, :default_hostname, :user_agent
+    attr_reader :connection, :website_id, :default_hostname, :user_agent, :disabled, :logger
     attr_accessor :user_id
 
     # Creates a new Events instance
@@ -16,12 +16,16 @@ module UmamiClient
     # @param website_id [String, nil] default website ID for tracking
     # @param default_hostname [String, nil] default hostname for events
     # @param user_agent [String] User-Agent string for tracking requests
-    def initialize(connection:, website_id: nil, default_hostname: nil, user_agent:)
+    # @param disabled [Boolean] whether tracking is disabled
+    # @param logger [Logger, nil] optional logger for debugging
+    def initialize(connection:, website_id: nil, default_hostname: nil, user_agent:, disabled: false, logger: nil)
       @connection = connection
       @website_id = website_id
       @default_hostname = default_hostname
       @user_agent = user_agent
       @user_id = nil
+      @disabled = disabled
+      @logger = logger
     end
 
     # Tracks a pageview to Umami Analytics
@@ -248,6 +252,12 @@ module UmamiClient
     # @param payload [Hash] the event payload
     # @return [Models::Response] the response
     def send_event(payload)
+      # Check if tracking is disabled
+      if disabled
+        log_disabled_event(payload) if logger
+        return mock_response
+      end
+
       # /api/send is a public endpoint that doesn't require authentication
       # In fact, sending auth headers causes it to return {"beep": "boop"}
       # So we always send without authentication
@@ -333,6 +343,43 @@ module UmamiClient
       return str if str.length <= max_length
 
       "#{str[0...max_length - 3]}..."
+    end
+
+    # Logs an event that would have been tracked if tracking wasn't disabled
+    #
+    # @param payload [Hash] the event payload
+    # @return [void]
+    def log_disabled_event(payload)
+      event_type = payload[:type]
+      event_payload = payload[:payload]
+
+      log_message = "[Umami Disabled] Would have tracked #{event_type}: "
+      log_message += "url=#{event_payload[:url]}"
+      log_message += ", name=#{event_payload[:name]}" if event_payload[:name]
+      log_message += ", id=#{event_payload[:id]}" if event_payload[:id]
+      log_message += ", data=#{event_payload[:data]}" if event_payload[:data]
+
+      logger.info(log_message)
+    end
+
+    # Creates a mock response for disabled mode
+    #
+    # @return [Models::Response] a mock response
+    def mock_response
+      require 'securerandom'
+
+      # Create a mock Faraday response-like object
+      mock_faraday_response = Struct.new(:status, :body, :headers).new(
+        200,
+        {
+          "cache" => "mock_cache_token",
+          "sessionId" => SecureRandom.uuid,
+          "visitId" => SecureRandom.uuid
+        },
+        {}
+      )
+
+      Models::Response.new(mock_faraday_response)
     end
   end
 end
