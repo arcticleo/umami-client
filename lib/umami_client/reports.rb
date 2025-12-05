@@ -817,6 +817,82 @@ module UmamiClient
       connection.post("/api/reports/revenue", body)
     end
 
+    # Execute a UTM report
+    #
+    # UTM reports track marketing campaigns through UTM parameters, analyzing campaign
+    # performance across five dimensions: source, medium, campaign, content, and term.
+    # Returns pageview counts for each UTM parameter value.
+    #
+    # @param website_id [String] website ID
+    # @param start_date [Time, String] start date (ISO 8601 or Time object)
+    # @param end_date [Time, String] end date (ISO 8601 or Time object)
+    # @param filters [Array<Hash>, nil] optional filters
+    #
+    # @return [Response] response with UTM campaign data
+    #
+    # @example Basic UTM report
+    #   response = client.reports.utm(
+    #     website_id,
+    #     start_date,
+    #     end_date
+    #   )
+    #
+    #   # Analyze by source
+    #   response.data['utm_source'].each do |item|
+    #     puts "#{item['utm']}: #{item['views']} views"
+    #   end
+    #
+    #   # Analyze by medium
+    #   response.data['utm_medium'].each do |item|
+    #     puts "#{item['utm']}: #{item['views']} views"
+    #   end
+    #
+    #   # Analyze by campaign
+    #   response.data['utm_campaign'].each do |item|
+    #     puts "#{item['utm']}: #{item['views']} views"
+    #   end
+    #
+    # @example Campaign performance analysis
+    #   response = client.reports.utm(website_id, start_date, end_date)
+    #
+    #   # Find top traffic sources
+    #   top_sources = response.data['utm_source']
+    #     .sort_by { |s| -s['views'] }
+    #     .take(5)
+    #
+    #   puts "Top 5 Traffic Sources:"
+    #   top_sources.each do |source|
+    #     puts "  #{source['utm']}: #{source['views']} views"
+    #   end
+    #
+    # @example Filtered UTM report
+    #   response = client.reports.utm(
+    #     website_id,
+    #     start_date,
+    #     end_date,
+    #     filters: [
+    #       { type: 'device', value: 'mobile' }
+    #     ]
+    #   )
+    #
+    def utm(website_id, start_date, end_date, filters: nil)
+      raise ValidationError, "website_id is required" if website_id.nil? || website_id.empty?
+      raise ValidationError, "start_date is required" if start_date.nil?
+      raise ValidationError, "end_date is required" if end_date.nil?
+
+      body = {
+        websiteId: website_id,
+        type: "utm",
+        parameters: {
+          startDate: format_date(start_date),
+          endDate: format_date(end_date)
+        }
+      }
+      body[:filters] = filters if filters
+
+      connection.post("/api/reports/utm", body)
+    end
+
     private
 
     # Formats a date for API consumption
