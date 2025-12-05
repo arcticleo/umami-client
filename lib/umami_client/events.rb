@@ -41,7 +41,7 @@ module UmamiClient
     # @param screen [String] screen resolution (default: "1920x1080")
     # @param language [String] language code (default: "en-US")
     #
-    # @return [Models::Response] response containing cache, sessionId, visitId
+    # @return [Response] response containing cache, sessionId, visitId
     #
     # @raise [ValidationError] if required parameters are missing
     # @raise [APIError] if the API request fails
@@ -104,7 +104,7 @@ module UmamiClient
     # @param title [String, nil] page title
     # @param data [Hash] custom event properties
     #
-    # @return [Models::Response] response containing sessionId, visitId
+    # @return [Response] response containing sessionId, visitId
     #
     # @raise [ValidationError] if required parameters are missing or invalid
     # @raise [APIError] if the API request fails
@@ -169,7 +169,7 @@ module UmamiClient
     # @param url [String] the URL where identification occurs (default: "/")
     # @param data [Hash] custom user properties to attach
     #
-    # @return [Models::Response] response containing sessionId and visitId
+    # @return [Response] response containing sessionId and visitId
     #
     # @raise [ValidationError] if required parameters are missing or invalid
     # @raise [APIError] if the API request fails
@@ -250,7 +250,7 @@ module UmamiClient
     # Sends an event payload to Umami
     #
     # @param payload [Hash] the event payload
-    # @return [Models::Response] the response
+    # @return [Response] the response
     def send_event(payload)
       # Check if tracking is disabled
       if disabled
@@ -267,7 +267,7 @@ module UmamiClient
     # Sends event without authentication (public endpoint)
     #
     # @param payload [Hash] the event payload
-    # @return [Models::Response] the response
+    # @return [Response] the response
     def send_without_auth(payload)
       require 'faraday'
 
@@ -285,7 +285,7 @@ module UmamiClient
       end
 
       # Wrap in our Response model
-      Models::Response.new(response)
+      Response.new(response)
     end
 
     # Validates and sanitizes event data according to Umami constraints
@@ -364,7 +364,7 @@ module UmamiClient
 
     # Creates a mock response for disabled mode
     #
-    # @return [Models::Response] a mock response
+    # @return [Response] a mock response
     def mock_response
       require 'securerandom'
 
@@ -379,7 +379,7 @@ module UmamiClient
         {}
       )
 
-      Models::Response.new(mock_faraday_response)
+      Response.new(mock_faraday_response)
     end
   end
 end

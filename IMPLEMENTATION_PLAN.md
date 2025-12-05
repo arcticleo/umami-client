@@ -350,17 +350,28 @@ This plan outlines the development of `umami-client`, a Ruby gem for interacting
 ### Tasks
 
 #### 4.1: Website Management
-- [ ] Create `Umami::Client::Websites` class
-- [ ] Implement endpoints:
-  - `GET /api/websites` - List all websites
-  - `GET /api/websites/:id` - Get website details
+- [x] Create `UmamiClient::Websites` class - already existed
+- [x] Implement endpoints:
+  - `GET /api/websites` - List all websites (already existed)
+  - `GET /api/websites/:id` - Get website details (already existed)
   - `POST /api/websites` - Create website
-  - `PUT /api/websites/:id` - Update website
+  - `POST /api/websites/:id` - Update website (API uses POST not PUT)
   - `DELETE /api/websites/:id` - Delete website
-- [ ] Create `Umami::Models::Website` model with attributes:
-  - `id`, `name`, `domain`, `shareId`, `createdAt`
-- [ ] Write tests for all endpoints
-- [ ] Add YARD documentation
+  - `POST /api/websites/:id/reset` - Reset website data (bonus)
+- [x] Create `UmamiClient::Website` model with attributes:
+  - `id`, `name`, `domain`, `share_id`, `created_at`, `updated_at`, `user_id`, `team_id`, `team`
+  - Helper methods: `shared?`, `team_website?`, `share_url`, `to_h`
+- [x] Write tests for all endpoints - test_website_management.rb
+- [x] Add YARD documentation - comprehensive docs in README
+- [x] Refactored namespace: `Models::Response` → `Response`, `Models::Website` → `Website`
+
+**Implementation Notes:**
+- Umami API requires both `name` and `domain` for updates
+- Update method intelligently fetches missing field if only one provided
+- Website model includes timestamp parsing (created_at, updated_at as Time objects)
+- Website model has convenience methods for checking shared/team status
+- All CRUD operations tested and working
+- Comprehensive README documentation with examples
 
 #### 4.2: Website Statistics
 - [ ] Create `Umami::Client::Stats` class

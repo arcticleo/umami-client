@@ -193,7 +193,7 @@ module UmamiClient
 
     def handle_response(faraday_response)
       # Wrap the Faraday response in our Response model
-      response = Models::Response.new(faraday_response)
+      response = Response.new(faraday_response)
 
       case response.status
       when 200..299
