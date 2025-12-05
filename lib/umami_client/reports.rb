@@ -184,5 +184,115 @@ module UmamiClient
 
       connection.delete("/api/reports/#{report_id}")
     end
+
+    # Executes a funnel report to analyze conversion and drop-off rates
+    #
+    # Analyzes user progression through a series of steps to identify conversion rates
+    # and drop-off points. Useful for understanding where users abandon a process.
+    #
+    # @param website_id [String] the website ID
+    # @param start_date [Time, String] start date (Time object or ISO 8601 string)
+    # @param end_date [Time, String] end date (Time object or ISO 8601 string)
+    # @param steps [Array<Hash>] array of funnel steps (minimum 2 steps)
+    #   Each step must have:
+    #   - type [String]: "path" for URL paths or "event" for custom events
+    #   - value [String]: the URL path or event name
+    # @param window [Integer] conversion window in days (default: 30)
+    # @param filters [Hash, nil] optional filters (country, device, browser, os, etc.)
+    #
+    # @return [Response] response containing funnel analysis with conversion rates
+    #
+    # @raise [ValidationError] if required parameters are missing or invalid
+    # @raise [AuthenticationError] if not authenticated
+    # @raise [APIError] if the API request fails
+    #
+    # @example Basic signup funnel
+    #   response = client.reports.funnel(
+    #     "website-id",
+    #     Time.now - 30.days,
+    #     Time.now,
+    #     [
+    #       { type: "path", value: "/signup" },
+    #       { type: "path", value: "/confirm-email" },
+    #       { type: "path", value: "/welcome" }
+    #     ],
+    #     30
+    #   )
+    #
+    #   response.body.each_with_index do |step, index|
+    #     puts "Step #{index + 1}: #{step['visitors']} visitors (#{step['conversionRate']}% conversion)"
+    #   end
+    #
+    # @example E-commerce checkout funnel with events
+    #   response = client.reports.funnel(
+    #     "website-id",
+    #     Time.now - 7.days,
+    #     Time.now,
+    #     [
+    #       { type: "path", value: "/cart" },
+    #       { type: "event", value: "begin-checkout" },
+    #       { type: "event", value: "add-payment-info" },
+    #       { type: "event", value: "purchase" }
+    #     ],
+    #     7,
+    #     filters: { country: "US" }
+    #   )
+    #
+    # @example Using ISO date strings
+    #   response = client.reports.funnel(
+    #     "website-id",
+    #     "2025-01-01T00:00:00.000Z",
+    #     "2025-01-31T23:59:59.999Z",
+    #     [
+    #       { type: "path", value: "/landing" },
+    #       { type: "path", value: "/pricing" },
+    #       { type: "path", value: "/checkout" }
+    #     ]
+    #   )
+    def funnel(website_id, start_date, end_date, steps, window = 30, filters: nil)
+      raise ValidationError, "website_id is required" if website_id.nil? || website_id.empty?
+      raise ValidationError, "start_date is required" if start_date.nil?
+      raise ValidationError, "end_date is required" if end_date.nil?
+      raise ValidationError, "steps is required" if steps.nil?
+      raise ValidationError, "steps must be an array" unless steps.is_a?(Array)
+      raise ValidationError, "steps must contain at least 2 steps" if steps.length < 2
+
+      # Validate each step
+      steps.each_with_index do |step, index|
+        raise ValidationError, "step #{index + 1} must be a Hash" unless step.is_a?(Hash)
+        raise ValidationError, "step #{index + 1} must have a 'type' key" unless step.key?(:type) || step.key?("type")
+        raise ValidationError, "step #{index + 1} must have a 'value' key" unless step.key?(:value) || step.key?("value")
+
+        step_type = step[:type] || step["type"]
+        raise ValidationError, "step #{index + 1} type must be 'path' or 'event'" unless %w[path event].include?(step_type)
+      end
+
+      body = {
+        websiteId: website_id,
+        type: "funnel",
+        parameters: {
+          startDate: format_date(start_date),
+          endDate: format_date(end_date),
+          steps: steps,
+          window: window
+        }
+      }
+      body[:filters] = filters if filters
+
+      connection.post("/api/reports/funnel", body)
+    end
+
+    private
+
+    # Formats a date for API consumption
+    #
+    # @param date [Time, String] date to format
+    # @return [String] ISO 8601 formatted date string
+    def format_date(date)
+      return date if date.is_a?(String)
+      return date.utc.iso8601(3) if date.respond_to?(:utc)
+
+      raise ValidationError, "Invalid date format: #{date.inspect}"
+    end
   end
 end
