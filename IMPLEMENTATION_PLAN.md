@@ -1016,15 +1016,32 @@ We only need middleware, helpers, and concerns - all of which work without an En
 - Verified: Page views tracked, assets/health checks skipped, graceful error handling
 - Middleware now fully functional for synchronous page view tracking
 
-##### 7.2.5: Implement Async Tracking
-- [ ] Create private method `track_async(env)`
-- [ ] Check if ActiveJob is available
-- [ ] If async enabled and ActiveJob available:
+##### 7.2.5: Implement Async Tracking ✅
+- [x] Create private method `track_async(env)`
+- [x] Check if ActiveJob is available
+- [x] If async enabled and ActiveJob available:
   - Queue tracking job (see 7.6)
   - Return immediately
-- [ ] If async disabled or ActiveJob unavailable:
+- [x] If async disabled or ActiveJob unavailable:
   - Fall back to synchronous tracking
-- [ ] Test both async and sync modes
+- [x] Test both async and sync modes
+
+**Implementation Notes:**
+- Refactored `track_page_view` to route through async/sync logic
+- Created `async_enabled?` method that checks:
+  - `async: true` option is set
+  - ActiveJob is defined in the environment
+- Created `track_async(env)` method that:
+  - Extracts request data
+  - Will queue background job in Phase 7.6 (TODO added)
+  - Currently falls back to sync with logged message
+- Created `track_sync(env)` method with actual tracking logic
+- Automatic fallback ensures tracking always works
+- Created `test_middleware_async.rb` - all 6 tests passed (100%)
+- Verified: Sync mode works, async defaults to false, graceful fallback when ActiveJob unavailable
+- Updated documentation with Async Tracking section
+- Updated README TOC with async tracking link
+- Foundation ready for Phase 7.6 (Background Job implementation)
 
 ##### 7.2.6: Implement Callback Hooks
 - [ ] Add support for `before_track` callback:

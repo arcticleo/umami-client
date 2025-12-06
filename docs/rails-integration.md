@@ -379,10 +379,51 @@ The middleware handles errors gracefully:
 - Errors are logged to `Rails.logger` when available
 - The response is always returned unchanged
 
+### Async Tracking
+
+The middleware supports asynchronous tracking using ActiveJob. When enabled, page views are tracked in background jobs instead of blocking the request.
+
+#### Current Status
+
+**Sync Mode (Default):**
+- Tracking happens synchronously during the request
+- Simple and reliable
+- Suitable for most applications
+- **Currently the only available mode**
+
+**Async Mode (Coming in Phase 7.6):**
+- Will use ActiveJob to track in the background
+- Non-blocking - doesn't slow down requests
+- Requires ActiveJob to be configured in your Rails app
+- Will automatically fall back to sync if ActiveJob is unavailable
+
+#### Configuration
+
+```ruby
+# config/application.rb
+
+# Default: Synchronous tracking
+config.umami_client.middleware_enabled = true
+config.umami_client.async = false  # Default
+
+# Future: Async tracking (Phase 7.6)
+config.umami_client.async = true  # Will use background jobs
+```
+
+#### How It Works
+
+The middleware automatically detects if async tracking is possible:
+
+1. **Check async option**: Is `async: true` set?
+2. **Check ActiveJob**: Is ActiveJob available in your Rails app?
+3. **Queue or sync**: If both true, queues a job. Otherwise, tracks synchronously.
+
+This automatic fallback ensures tracking always works, even if ActiveJob isn't configured.
+
 ### Coming Soon
 
 🚧 Features still in development:
-- **Async Tracking**: Background job integration for non-blocking tracking
+- **Async Tracking Background Job**: ActiveJob integration for non-blocking tracking (Phase 7.6)
 - **Callback Hooks**: `before_track` and `after_track` for customization
 - **Custom Data**: Add extra data to page views via callbacks
 

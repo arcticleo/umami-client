@@ -270,6 +270,7 @@ A Ruby client library for the [Umami Analytics API](https://umami.is/docs/api).
   - [Configuration Options](docs/rails-integration.md#configuration-options)
   - [Complete Example](docs/rails-integration.md#complete-example)
   - [Error Handling](docs/rails-integration.md#error-handling)
+  - [Async Tracking](docs/rails-integration.md#async-tracking)
 - [View Helpers](docs/rails-integration.md#view-helpers) 🚧
 - [Controller Concerns](docs/rails-integration.md#controller-concerns) 🚧
 - [Rails Generators](docs/rails-integration.md#rails-generators) 🚧

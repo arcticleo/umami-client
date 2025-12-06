@@ -231,11 +231,44 @@ module UmamiClient
       # Track a page view for this request
       #
       # Extracts request data and sends it to Umami Analytics.
+      # Uses async tracking if enabled and ActiveJob is available, otherwise falls back to sync.
       # Errors are logged but never raised - tracking failures should not break the app.
       #
       # @param env [Hash] Rack environment
       # @return [void]
       def track_page_view(env)
+        # Check if async tracking is enabled and available
+        if async_enabled?
+          track_async(env)
+        else
+          track_sync(env)
+        end
+      rescue StandardError => e
+        # Log error but don't raise - tracking failures should not break the app
+        log_error("Failed to track page view: #{e.message}")
+      end
+
+      # Track page view asynchronously using ActiveJob
+      #
+      # @param env [Hash] Rack environment
+      # @return [void]
+      def track_async(env)
+        # Extract request data
+        data = extract_request_data(env)
+
+        # TODO: Queue background job in Phase 7.6
+        # For now, fall back to synchronous tracking
+        # Future: UmamiClient::TrackPageViewJob.perform_later(...)
+
+        log_error("Async tracking requested but job not implemented yet - falling back to sync")
+        track_sync(env)
+      end
+
+      # Track page view synchronously
+      #
+      # @param env [Hash] Rack environment
+      # @return [void]
+      def track_sync(env)
         # Extract request data
         data = extract_request_data(env)
 
@@ -246,9 +279,19 @@ module UmamiClient
           hostname: data[:hostname],
           referrer: data[:referrer]
         )
-      rescue StandardError => e
-        # Log error but don't raise - tracking failures should not break the app
-        log_error("Failed to track page view: #{e.message}")
+      end
+
+      # Check if async tracking is enabled and available
+      #
+      # @return [Boolean]
+      def async_enabled?
+        # Async must be explicitly enabled
+        return false unless options.fetch(:async, false)
+
+        # ActiveJob must be available
+        return false unless defined?(ActiveJob)
+
+        true
       end
 
       # Log an error message
