@@ -91,6 +91,40 @@ module UmamiClient
         true
       end
 
+      # Extract request data from Rack environment
+      #
+      # Extracts URL, referrer, user agent, and hostname from the Rack env hash.
+      # Handles missing values gracefully by returning nil for optional fields.
+      #
+      # @param env [Hash] Rack environment
+      # @return [Hash] Request data with keys: :url, :referrer, :user_agent, :hostname
+      def extract_request_data(env)
+        {
+          url: build_url(env),
+          referrer: env["HTTP_REFERER"],
+          user_agent: env["HTTP_USER_AGENT"],
+          hostname: env["HTTP_HOST"]
+        }
+      end
+
+      # Build full URL from Rack environment
+      #
+      # Constructs the full URL including scheme, host, path, and query string.
+      # Example: "https://example.com/articles/123?view=full"
+      #
+      # @param env [Hash] Rack environment
+      # @return [String] Full URL
+      def build_url(env)
+        scheme = env["rack.url_scheme"] || "http"
+        host = env["HTTP_HOST"]
+        path = env["PATH_INFO"] || "/"
+        query = env["QUERY_STRING"]
+
+        url = "#{scheme}://#{host}#{path}"
+        url += "?#{query}" if query && !query.empty?
+        url
+      end
+
       # Track a page view for this request
       #
       # @param env [Hash] Rack environment

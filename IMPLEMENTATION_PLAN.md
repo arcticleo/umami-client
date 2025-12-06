@@ -940,14 +940,28 @@ We only need middleware, helpers, and concerns - all of which work without an En
 - Created `test_middleware.rb` - all 8 tests passed (100%)
 - Middleware ready for request data extraction (Phase 7.2.2)
 
-##### 7.2.2: Implement Request Data Extraction
-- [ ] Create private method `extract_request_data(env)`
-- [ ] Extract URL from `env['PATH_INFO']` and `env['QUERY_STRING']`
-- [ ] Extract referrer from `env['HTTP_REFERER']`
-- [ ] Extract user agent from `env['HTTP_USER_AGENT']`
-- [ ] Extract hostname from `env['HTTP_HOST']`
-- [ ] Handle missing/nil values gracefully
-- [ ] Test extraction with various request types
+##### 7.2.2: Implement Request Data Extraction ✅
+- [x] Create private method `extract_request_data(env)`
+- [x] Extract URL from `env['PATH_INFO']` and `env['QUERY_STRING']`
+- [x] Extract referrer from `env['HTTP_REFERER']`
+- [x] Extract user agent from `env['HTTP_USER_AGENT']`
+- [x] Extract hostname from `env['HTTP_HOST']`
+- [x] Handle missing/nil values gracefully
+- [x] Test extraction with various request types
+
+**Implementation Notes:**
+- Created `extract_request_data(env)` method that extracts all request data
+- Created `build_url(env)` helper method that constructs full URL:
+  - Combines `rack.url_scheme`, `HTTP_HOST`, `PATH_INFO`, and `QUERY_STRING`
+  - Handles HTTPS/HTTP schemes correctly
+  - Includes query string only when present
+  - Defaults PATH_INFO to "/" when missing
+- Extracts referrer from `HTTP_REFERER` (returns nil if not present)
+- Extracts user agent from `HTTP_USER_AGENT` (returns nil if not present)
+- Extracts hostname from `HTTP_HOST` (includes port if non-standard)
+- Returns hash with keys: `:url`, `:referrer`, `:user_agent`, `:hostname`
+- Created `test_middleware_extraction.rb` - all 10 tests passed (100%)
+- Handles all edge cases: missing fields, root paths, empty query strings, custom ports
 
 ##### 7.2.3: Implement Path Filtering
 - [ ] Create private method `should_skip_request?(env)`
