@@ -11,7 +11,9 @@ A Ruby client library for the [Umami Analytics API](https://umami.is/docs/api).
 - [Configuration](docs/usage.md#configuration)
 - [Environment Variables](docs/usage.md#environment-variables)
 
-### [Event Tracking](docs/event-tracking.md)
+### Tracking Features
+
+#### [Event Tracking](docs/event-tracking.md)
 
 - [Track Pageviews](docs/event-tracking.md#track-pageviews)
 - [Track Custom Events](docs/event-tracking.md#track-custom-events)
@@ -19,7 +21,27 @@ A Ruby client library for the [Umami Analytics API](https://umami.is/docs/api).
 - [Configuration Options](docs/event-tracking.md#configuration-options)
 - [Custom User-Agent](docs/event-tracking.md#custom-user-agent)
 
-### [Website Management](docs/website-management.md)
+#### [Links and Pixels](docs/links-pixels.md)
+
+- [Overview](docs/links-pixels.md#overview)
+- [Links API](docs/links-pixels.md#links-api)
+  - [Creating Short Links](docs/links-pixels.md#creating-short-links)
+  - [Listing Links](docs/links-pixels.md#listing-links)
+  - [Getting Link Details](docs/links-pixels.md#getting-link-details)
+  - [Updating Links](docs/links-pixels.md#updating-links)
+  - [Deleting Links](docs/links-pixels.md#deleting-links)
+- [Pixels API](docs/links-pixels.md#pixels-api)
+  - [Creating Tracking Pixels](docs/links-pixels.md#creating-tracking-pixels)
+  - [Listing Pixels](docs/links-pixels.md#listing-pixels)
+  - [Getting Pixel Details](docs/links-pixels.md#getting-pixel-details)
+  - [Updating Pixels](docs/links-pixels.md#updating-pixels)
+  - [Deleting Pixels](docs/links-pixels.md#deleting-pixels)
+- [Complete Examples](docs/links-pixels.md#complete-examples)
+- [Best Practices](docs/links-pixels.md#best-practices)
+
+### Data & Analytics
+
+#### [Website Management](docs/website-management.md)
 
 - [List Websites](docs/website-management.md#list-websites)
 - [Get Website Details](docs/website-management.md#get-website-details)
@@ -30,7 +52,7 @@ A Ruby client library for the [Umami Analytics API](https://umami.is/docs/api).
 - [Using the Website Model](docs/website-management.md#using-the-website-model)
 - [Complete Example](docs/website-management.md#complete-example)
 
-### [Website Statistics](docs/website-statistics.md)
+#### [Website Statistics](docs/website-statistics.md)
 
 - [Active Visitors](docs/website-statistics.md#active-visitors)
 - [Summary Statistics](docs/website-statistics.md#summary-statistics)
@@ -40,7 +62,7 @@ A Ruby client library for the [Umami Analytics API](https://umami.is/docs/api).
 - [Complete Dashboard Example](docs/website-statistics.md#complete-dashboard-example)
 - [Time Handling](docs/website-statistics.md#time-handling)
 
-### [Session Queries](docs/session-queries.md)
+#### [Session Queries](docs/session-queries.md)
 
 - [Finding Sessions by Distinct ID](docs/session-queries.md#finding-sessions-by-distinct-id)
 - [List Sessions](docs/session-queries.md#list-sessions)
@@ -53,7 +75,7 @@ A Ruby client library for the [Umami Analytics API](https://umami.is/docs/api).
 - [Session Property Values](docs/session-queries.md#session-property-values)
 - [Complete Visitor Tracking Example](docs/session-queries.md#complete-visitor-tracking-example)
 
-### [Reports Management](docs/reports-management.md)
+#### [Reports Management](docs/reports-management.md)
 
 - [List Reports](docs/reports-management.md#list-reports)
 - [Create Report](docs/reports-management.md#create-report)
@@ -63,7 +85,7 @@ A Ruby client library for the [Umami Analytics API](https://umami.is/docs/api).
 - [Complete Example](docs/reports-management.md#complete-example)
 - [Report Parameters by Type](docs/reports-management.md#report-parameters-by-type)
 
-### [Executing Funnel Reports](docs/funnel-reports.md)
+#### [Executing Funnel Reports](docs/funnel-reports.md)
 
 - [Basic Funnel Analysis](docs/funnel-reports.md#basic-funnel-analysis)
 - [Funnel Step Types](docs/funnel-reports.md#funnel-step-types)
@@ -74,7 +96,7 @@ A Ruby client library for the [Umami Analytics API](https://umami.is/docs/api).
 - [Common Funnel Patterns](docs/funnel-reports.md#common-funnel-patterns)
 - [Complete Funnel Analysis Example](docs/funnel-reports.md#complete-funnel-analysis-example)
 
-### [Executing Journey Reports](docs/journey-reports.md)
+#### [Executing Journey Reports](docs/journey-reports.md)
 
 - [Basic Journey Analysis](docs/journey-reports.md#basic-journey-analysis)
 - [Journey vs Funnel](docs/journey-reports.md#journey-vs-funnel)
@@ -88,7 +110,7 @@ A Ruby client library for the [Umami Analytics API](https://umami.is/docs/api).
 - [Complete Journey Analysis Example](docs/journey-reports.md#complete-journey-analysis-example)
 - [Use Cases for Journey Reports](docs/journey-reports.md#use-cases-for-journey-reports)
 
-### [Executing Retention Reports](docs/retention-reports.md)
+#### [Executing Retention Reports](docs/retention-reports.md)
 
 - [Basic Retention Analysis](docs/retention-reports.md#basic-retention-analysis)
 - [Understanding Retention Data](docs/retention-reports.md#understanding-retention-data)
@@ -102,7 +124,7 @@ A Ruby client library for the [Umami Analytics API](https://umami.is/docs/api).
 - [Complete Retention Analysis Example](docs/retention-reports.md#complete-retention-analysis-example)
 - [Retention Improvement Strategies](docs/retention-reports.md#retention-improvement-strategies)
 
-### [Executing Goal Reports](docs/goal-reports.md)
+#### [Executing Goal Reports](docs/goal-reports.md)
 
 - [Basic Goal Tracking](docs/goal-reports.md#basic-goal-tracking)
 - [Goals vs Funnels](docs/goal-reports.md#goals-vs-funnels)
@@ -117,7 +139,7 @@ A Ruby client library for the [Umami Analytics API](https://umami.is/docs/api).
 - [Complete Goal Analysis Example](docs/goal-reports.md#complete-goal-analysis-example)
 - [Goal Optimization Tips](docs/goal-reports.md#goal-optimization-tips)
 
-### [Executing Attribution Reports](docs/attribution-reports.md)
+#### [Executing Attribution Reports](docs/attribution-reports.md)
 
 - [Understanding Attribution Models](docs/attribution-reports.md#understanding-attribution-models)
 - [Basic Attribution Analysis](docs/attribution-reports.md#basic-attribution-analysis)
@@ -132,7 +154,7 @@ A Ruby client library for the [Umami Analytics API](https://umami.is/docs/api).
 - [Attribution Best Practices](docs/attribution-reports.md#attribution-best-practices)
 - [Common Attribution Patterns](docs/attribution-reports.md#common-attribution-patterns)
 
-### [Executing Breakdown Reports](docs/breakdown-reports.md)
+#### [Executing Breakdown Reports](docs/breakdown-reports.md)
 
 - [Basic Usage](docs/breakdown-reports.md#basic-usage)
 - [Available Dimensions](docs/breakdown-reports.md#available-dimensions)
@@ -143,7 +165,7 @@ A Ruby client library for the [Umami Analytics API](https://umami.is/docs/api).
 - [Business Intelligence Use Cases](docs/breakdown-reports.md#business-intelligence-use-cases)
 - [Industry Benchmarks](docs/breakdown-reports.md#industry-benchmarks)
 
-### [Executing Revenue Reports](docs/revenue-reports.md)
+#### [Executing Revenue Reports](docs/revenue-reports.md)
 
 - [Basic Usage](docs/revenue-reports.md#basic-usage)
 - [Response Structure](docs/revenue-reports.md#response-structure)
@@ -160,7 +182,7 @@ A Ruby client library for the [Umami Analytics API](https://umami.is/docs/api).
 - [Advanced Business Metrics](docs/revenue-reports.md#advanced-business-metrics)
 - [Industry Benchmarks](docs/revenue-reports.md#industry-benchmarks)
 
-### [Executing UTM Reports](docs/utm-reports.md)
+#### [Executing UTM Reports](docs/utm-reports.md)
 
 - [Basic Usage](docs/utm-reports.md#basic-usage)
 - [UTM Parameters Overview](docs/utm-reports.md#utm-parameters-overview)
@@ -179,7 +201,9 @@ A Ruby client library for the [Umami Analytics API](https://umami.is/docs/api).
 - [Common UTM Patterns](docs/utm-reports.md#common-utm-patterns)
 - [Industry Benchmarks](docs/utm-reports.md#industry-benchmarks)
 
-### [User Management](docs/user-management.md)
+### Administrative
+
+#### [User Management](docs/user-management.md)
 
 - [Get Current User](docs/user-management.md#get-current-user)
 - [List All Users](docs/user-management.md#list-all-users)
@@ -196,7 +220,26 @@ A Ruby client library for the [Umami Analytics API](https://umami.is/docs/api).
 - [Limitations](docs/user-management.md#limitations)
 - [Common Use Cases](docs/user-management.md#common-use-cases)
 
-### [Disabled Mode for Testing](docs/disabled-mode.md)
+#### [Team Management](docs/team-management.md)
+
+- [Overview](docs/team-management.md#overview)
+- [Team Roles](docs/team-management.md#team-roles)
+- [Creating Teams](docs/team-management.md#creating-teams)
+- [Listing Teams](docs/team-management.md#listing-teams)
+- [Getting Team Details](docs/team-management.md#getting-team-details)
+- [Updating Teams](docs/team-management.md#updating-teams)
+- [Deleting Teams](docs/team-management.md#deleting-teams)
+- [Joining Teams](docs/team-management.md#joining-teams)
+- [Managing Team Members](docs/team-management.md#managing-team-members)
+- [Team Model](docs/team-management.md#team-model)
+- [Known Issues](docs/team-management.md#known-issues)
+- [Complete Examples](docs/team-management.md#complete-examples)
+- [Best Practices](docs/team-management.md#best-practices)
+- [Common Use Cases](docs/team-management.md#common-use-cases)
+
+### Development & Testing
+
+#### [Disabled Mode for Testing](docs/disabled-mode.md)
 
 - [Basic Usage](docs/disabled-mode.md#basic-usage)
 - [Test Configuration](docs/disabled-mode.md#test-configuration)
@@ -204,9 +247,9 @@ A Ruby client library for the [Umami Analytics API](https://umami.is/docs/api).
 - [How It Works](docs/disabled-mode.md#how-it-works)
 - [Example Test](docs/disabled-mode.md#example-test)
 
-### [Development](docs/development.md)
+#### [Development](docs/development.md)
 
-### [Contributing](docs/contributing.md)
+#### [Contributing](docs/contributing.md)
 
-### [License](docs/license.md)
+#### [License](docs/license.md)
 
