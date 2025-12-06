@@ -237,6 +237,19 @@ A Ruby client library for the [Umami Analytics API](https://umami.is/docs/api).
 - [Best Practices](docs/team-management.md#best-practices)
 - [Common Use Cases](docs/team-management.md#common-use-cases)
 
+#### [Admin Functions](docs/admin-functions.md)
+
+- [Important Notes](docs/admin-functions.md#important-notes)
+- [Authentication](docs/admin-functions.md#authentication)
+- [List All Users](docs/admin-functions.md#list-all-users)
+- [List All Websites](docs/admin-functions.md#list-all-websites)
+- [List All Teams](docs/admin-functions.md#list-all-teams)
+- [Complete Admin Dashboard Example](docs/admin-functions.md#complete-admin-dashboard-example)
+- [Error Handling](docs/admin-functions.md#error-handling)
+- [Best Practices](docs/admin-functions.md#best-practices)
+- [Limitations](docs/admin-functions.md#limitations)
+- [Common Use Cases](docs/admin-functions.md#common-use-cases)
+
 ### Development & Testing
 
 #### [Disabled Mode for Testing](docs/disabled-mode.md)

@@ -18,6 +18,7 @@ require_relative "umami_client/users"
 require_relative "umami_client/teams"
 require_relative "umami_client/links"
 require_relative "umami_client/pixels"
+require_relative "umami_client/admin"
 require_relative "umami_client/client"
 
 module UmamiClient

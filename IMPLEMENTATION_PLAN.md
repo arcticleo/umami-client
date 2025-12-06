@@ -769,9 +769,9 @@ This workflow successfully retrieves:
 - All validation includes helpful error messages
 - Test suite covers CRUD operations and validation scenarios for both APIs
 
-#### 6.4: Admin Functions
-- [ ] Create `UmamiClient::Admin` class
-- [ ] Implement admin-only endpoints:
+#### 6.4: Admin Functions ✅ COMPLETED
+- [x] Create `UmamiClient::Admin` class
+- [x] Implement admin-only endpoints:
   - `GET /api/admin/users` - List all users across entire instance (admin-only)
     - Parameters: search, page, pageSize
     - Returns: All users with role, website count, timestamps
@@ -781,20 +781,29 @@ This workflow successfully retrieves:
   - `GET /api/admin/teams` - List all teams across entire instance (admin-only)
     - Parameters: search, page, pageSize
     - Returns: All teams with member details, website count, member count
-- [ ] Add pagination support (page, pageSize parameters)
-- [ ] Add search filtering support
-- [ ] Add proper permission checking (self-hosted only, admin role required)
-- [ ] Write tests
-- [ ] Add YARD documentation
-- [ ] Create README documentation section
+- [x] Add pagination support (page, pageSize parameters)
+- [x] Add search filtering support
+- [x] Add proper permission checking (self-hosted only, admin role required)
+- [x] Write tests - test_admin.rb with 12 test cases (100% passing)
+- [x] Add YARD documentation - Comprehensive inline docs
+- [x] Create README documentation - docs/admin-functions.md (comprehensive guide)
 
 **Implementation Notes:**
 - Admin endpoints are ONLY available for self-hosted Umami instances (NOT Umami Cloud)
-- Requires admin role authentication
+- Requires admin role authentication (username/password, not API key)
 - Provides global views across all resources in the instance
 - Different from regular endpoints which are scoped to current user's permissions
-- All endpoints support pagination and search filtering
-- Should raise appropriate errors for non-admin users or Umami Cloud instances
+- All endpoints support pagination (page, pageSize) and search filtering
+- Response structure: `{ "data": [...], "count": N, "page": 1, "pageSize": 20 }`
+- All 12 tests verified passing with real Umami instance
+- Comprehensive documentation includes:
+  - Authentication examples
+  - Pagination and search examples
+  - Complete response structure documentation
+  - Admin dashboard example
+  - Error handling patterns
+  - Best practices (pagination, caching, monitoring)
+  - Common use cases (user audits, resource allocation, growth tracking)
 
 **Deliverables**:
 - Complete management API coverage
