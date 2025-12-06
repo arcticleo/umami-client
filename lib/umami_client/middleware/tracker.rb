@@ -87,8 +87,111 @@ module UmamiClient
         # Must have website_id configured
         return false unless options[:website_id]
 
-        # TODO: Add path filtering logic in next phase
+        # Skip if request matches skip criteria
+        return false if should_skip_request?(env)
+
         true
+      end
+
+      # Check if this request should be skipped
+      #
+      # Checks if the request matches any skip criteria:
+      # - Asset requests (if skip_assets is enabled)
+      # - Health check endpoints
+      # - Custom skip_paths patterns
+      #
+      # @param env [Hash] Rack environment
+      # @return [Boolean]
+      def should_skip_request?(env)
+        path = env["PATH_INFO"] || "/"
+
+        # Skip asset requests if enabled (default: true)
+        return true if options.fetch(:skip_assets, true) && asset_request?(path)
+
+        # Skip health check endpoints
+        return true if health_check_request?(path)
+
+        # Skip custom paths
+        return true if matches_skip_paths?(path)
+
+        false
+      end
+
+      # Check if path is an asset request
+      #
+      # Detects asset requests by path prefix or file extension:
+      # - /assets/* - Rails asset pipeline
+      # - /packs/* - Webpacker
+      # - *.js, *.css, *.png, *.jpg, etc. - Static files
+      #
+      # @param path [String] Request path
+      # @return [Boolean]
+      def asset_request?(path)
+        # Check for asset path prefixes
+        return true if path.start_with?("/assets/", "/packs/")
+
+        # Check for asset file extensions
+        asset_extensions = %w[
+          .js .css .map
+          .png .jpg .jpeg .gif .svg .ico .webp
+          .woff .woff2 .ttf .eot .otf
+          .mp4 .webm .ogg .mp3 .wav
+          .pdf .zip .tar .gz
+        ]
+
+        asset_extensions.any? { |ext| path.end_with?(ext) }
+      end
+
+      # Check if path is a health check endpoint
+      #
+      # Detects common health check patterns:
+      # - /health, /healthz
+      # - /ping, /status
+      # - /ready, /readiness
+      # - /alive, /liveness
+      #
+      # @param path [String] Request path
+      # @return [Boolean]
+      def health_check_request?(path)
+        health_check_paths = %w[
+          /health /healthz
+          /ping /status
+          /ready /readiness
+          /alive /liveness
+        ]
+
+        health_check_paths.include?(path)
+      end
+
+      # Check if path matches custom skip_paths
+      #
+      # Supports multiple formats:
+      # - String: Exact path match ("/admin")
+      # - Regexp: Pattern match (/^\/admin/)
+      # - Proc: Dynamic logic (called with path)
+      # - Array: Any of the above
+      #
+      # @param path [String] Request path
+      # @return [Boolean]
+      def matches_skip_paths?(path)
+        skip_paths = options[:skip_paths]
+        return false unless skip_paths
+
+        # Ensure skip_paths is an array
+        skip_paths = [skip_paths] unless skip_paths.is_a?(Array)
+
+        skip_paths.any? do |pattern|
+          case pattern
+          when String
+            path == pattern
+          when Regexp
+            path =~ pattern
+          when Proc
+            pattern.call(path)
+          else
+            false
+          end
+        end
       end
 
       # Extract request data from Rack environment

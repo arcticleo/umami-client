@@ -963,19 +963,39 @@ We only need middleware, helpers, and concerns - all of which work without an En
 - Created `test_middleware_extraction.rb` - all 10 tests passed (100%)
 - Handles all edge cases: missing fields, root paths, empty query strings, custom ports
 
-##### 7.2.3: Implement Path Filtering
-- [ ] Create private method `should_skip_request?(env)`
-- [ ] Implement asset path detection:
+##### 7.2.3: Implement Path Filtering ✅
+- [x] Create private method `should_skip_request?(env)`
+- [x] Implement asset path detection:
   - Skip requests to `/assets/*`
   - Skip requests to `/packs/*` (Webpacker)
   - Skip requests with asset extensions (.js, .css, .png, .jpg, etc.)
-- [ ] Implement health check detection:
+- [x] Implement health check detection:
   - Skip `/health`, `/healthz`, `/ping`, etc.
-- [ ] Implement custom skip_paths support:
+- [x] Implement custom skip_paths support:
   - Support Array of strings
   - Support Array of Regex patterns
   - Support Proc for dynamic logic
-- [ ] Test filtering logic with various paths
+- [x] Test filtering logic with various paths
+
+**Implementation Notes:**
+- Created `should_skip_request?(env)` method that checks all skip criteria
+- Created `asset_request?(path)` method that detects:
+  - Path prefixes: `/assets/*`, `/packs/*` (Webpacker)
+  - File extensions: .js, .css, .map (scripts/styles)
+  - Image files: .png, .jpg, .jpeg, .gif, .svg, .ico, .webp
+  - Font files: .woff, .woff2, .ttf, .eot, .otf
+  - Media files: .mp4, .webm, .ogg, .mp3, .wav
+  - Archive files: .pdf, .zip, .tar, .gz
+- Created `health_check_request?(path)` method detecting: /health, /healthz, /ping, /status, /ready, /readiness, /alive, /liveness
+- Created `matches_skip_paths?(path)` method supporting:
+  - String: Exact path match ("/admin")
+  - Regexp: Pattern match (/^\/admin/)
+  - Proc: Dynamic logic (e.g., ->(path) { path.include?("secret") })
+  - Array: Mixed patterns (any of the above)
+- Integrated with `should_track?` method - returns false if request should be skipped
+- Respects `skip_assets` option (default: true) - can be disabled to track asset requests
+- Created `test_middleware_filtering.rb` - all 16 tests passed (100%)
+- Comprehensive coverage: asset types, health checks, custom patterns, edge cases
 
 ##### 7.2.4: Implement Page View Tracking
 - [ ] Create private method `track_page_view(env)`
