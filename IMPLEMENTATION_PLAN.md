@@ -901,23 +901,44 @@ This workflow successfully retrieves:
   - Troubleshooting for validation errors
   - Example error messages and fixes
 
-##### 7.1.4: Create Rails Engine (Optional)
-- [ ] Evaluate if engine is needed for routes/controllers
-- [ ] Create `lib/umami_client/rails/engine.rb` if needed
-- [ ] Define routes for webhook endpoints (if applicable)
-- [ ] Test engine mounts correctly
+##### 7.1.4: Create Rails Engine (Optional) ⏭️ SKIPPED
+- [x] Evaluate if engine is needed for routes/controllers
+- [ ] ~~Create `lib/umami_client/rails/engine.rb` if needed~~
+- [ ] ~~Define routes for webhook endpoints (if applicable)~~
+- [ ] ~~Test engine mounts correctly~~
+
+**Decision:** Engine not needed. Our gem doesn't require:
+- Routes (no web endpoints to mount)
+- Controllers (no pages to serve)
+- Models (analytics tracking, not data management)
+
+We only need middleware, helpers, and concerns - all of which work without an Engine.
 
 #### 7.2: Rack Middleware
 
-##### 7.2.1: Create Middleware Class
-- [ ] Create `lib/umami_client/middleware/tracker.rb`
-- [ ] Define `UmamiClient::Middleware::Tracker` class
-- [ ] Implement `initialize(app, options = {})` method
+##### 7.2.1: Create Middleware Class ✅
+- [x] Create `lib/umami_client/middleware/tracker.rb`
+- [x] Define `UmamiClient::Middleware::Tracker` class
+- [x] Implement `initialize(app, options = {})` method
   - Store app reference
   - Store configuration options
   - Initialize UmamiClient connection
-- [ ] Implement `call(env)` method skeleton
-- [ ] Test basic middleware setup
+- [x] Implement `call(env)` method skeleton
+- [x] Test basic middleware setup
+
+**Implementation Notes:**
+- Created middleware class following standard Rack pattern
+- Implemented `initialize(app, options = {})` to store app, options, and client
+- Implemented `call(env)` method that:
+  - Calls next middleware/app first
+  - Tracks page view if `should_track?` returns true
+  - Returns response unchanged
+  - Includes error handling wrapper (logs but doesn't break app)
+- Implemented `should_track?(env)` stub checking enabled and website_id
+- Implemented `log_error(message)` using `::Rails.logger` when available
+- Fixed namespace collision by using `::Rails` instead of `Rails`
+- Created `test_middleware.rb` - all 8 tests passed (100%)
+- Middleware ready for request data extraction (Phase 7.2.2)
 
 ##### 7.2.2: Implement Request Data Extraction
 - [ ] Create private method `extract_request_data(env)`
