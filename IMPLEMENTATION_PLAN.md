@@ -708,33 +708,93 @@ This workflow successfully retrieves:
 - All validation includes helpful error messages
 - Test suite covers CRUD operations, User model, and validation scenarios
 
-#### 6.2: Team Management
-- [ ] Create `UmamiClient::Teams` class
-- [ ] Implement endpoints:
-  - `GET /api/teams` - List teams
+#### 6.2: Team Management ✅ COMPLETED
+- [x] Create `UmamiClient::Teams` class
+- [x] Implement endpoints:
+  - `GET /api/users/:userId/teams` - List teams (workaround for /api/teams 405 error)
   - `GET /api/teams/:id` - Get team
   - `POST /api/teams` - Create team
+  - `POST /api/teams/:teamId/join` - Join team with access code
   - `PUT /api/teams/:id` - Update team
   - `DELETE /api/teams/:id` - Delete team
-  - Team member management
-- [ ] Create `UmamiClient::Team` model
-- [ ] Write tests
-- [ ] Add YARD documentation
+  - `GET /api/teams/:teamId/users` - List team members
+  - `POST /api/teams/:teamId/users` - Add team member
+  - `GET /api/teams/:teamId/users/:userId` - Get member details
+  - `POST /api/teams/:teamId/users/:userId` - Update member role
+  - `DELETE /api/teams/:teamId/users/:userId` - Remove member
+- [x] Create `UmamiClient::Team` model with role filtering methods
+- [x] Write tests - test_team_management.rb with 18 test cases (100% passing)
+- [x] Add YARD documentation - Comprehensive inline docs
+- [x] Create README documentation - docs/team-management.md (15KB)
 
-#### 6.3: Links & Pixels (If Available)
-- [ ] Create `UmamiClient::Links` class for link tracking
-- [ ] Create `UmamiClient::Pixels` class for pixel tracking
-- [ ] Implement relevant endpoints
-- [ ] Create model classes
-- [ ] Write tests
-- [ ] Add YARD documentation
+**Implementation Notes:**
+- Teams API available in Umami v2.0+ (requires instance upgrade from v1.x)
+- Team roles: "team-owner", "team-manager", "team-member", "team-view-only" (note the "team-" prefix)
+- Workaround implemented for GitHub Issue #3195: /api/teams returns 405, use /api/users/:userId/teams instead
+- Create endpoint returns Array [team_object, team_user_object] not Hash
+- Team model includes helper methods for filtering members by role
+- Comprehensive documentation with examples, best practices, common use cases, and known issues
+- All validation includes helpful error messages
+- Test suite covers CRUD operations, member management, Team model, and validation scenarios
+
+#### 6.3: Links & Pixels ✅ COMPLETED
+- [x] Create `UmamiClient::Links` class for short URL tracking
+- [x] Create `UmamiClient::Pixels` class for tracking pixels
+- [x] Implement Links endpoints:
+  - `GET /api/links` - List all links with pagination
+  - `GET /api/links/:linkId` - Get link details
+  - `POST /api/links` - Create short link (requires name, url, slug - min 8 chars)
+  - `POST /api/links/:linkId` - Update link
+  - `DELETE /api/links/:linkId` - Delete link
+- [x] Implement Pixels endpoints:
+  - `GET /api/pixels` - List all pixels with pagination
+  - `GET /api/pixels/:pixelId` - Get pixel details
+  - `POST /api/pixels` - Create pixel (requires name, slug - min 8 chars)
+  - `POST /api/pixels/:pixelId` - Update pixel
+  - `DELETE /api/pixels/:pixelId` - Delete pixel
+- [x] Write tests - test_links_pixels.rb with 22 test cases (100% passing)
+- [x] Add YARD documentation - Comprehensive inline docs
+- [x] Create README documentation - docs/links-pixels.md (25KB)
+
+**Implementation Notes:**
+- Links & Pixels available in Umami v3.0+ (requires instance upgrade)
+- Links create shortened URLs that track clicks with analytics data
+- Pixels generate tracking pixel images for email/external tracking
+- Both require slug field with minimum 8 character length validation
+- Comprehensive documentation with 3 complete examples:
+  - Campaign management with short links
+  - Newsletter tracking with pixels
+  - Social media tracking combining both
+- Best practices for slug naming, email-safe pixel embedding
+- All validation includes helpful error messages
+- Test suite covers CRUD operations and validation scenarios for both APIs
 
 #### 6.4: Admin Functions
 - [ ] Create `UmamiClient::Admin` class
-- [ ] Implement admin-only endpoints
-- [ ] Add proper permission checking
+- [ ] Implement admin-only endpoints:
+  - `GET /api/admin/users` - List all users across entire instance (admin-only)
+    - Parameters: search, page, pageSize
+    - Returns: All users with role, website count, timestamps
+  - `GET /api/admin/websites` - List all websites across entire instance (admin-only)
+    - Parameters: search, page, pageSize
+    - Returns: All websites with owner details, team association
+  - `GET /api/admin/teams` - List all teams across entire instance (admin-only)
+    - Parameters: search, page, pageSize
+    - Returns: All teams with member details, website count, member count
+- [ ] Add pagination support (page, pageSize parameters)
+- [ ] Add search filtering support
+- [ ] Add proper permission checking (self-hosted only, admin role required)
 - [ ] Write tests
 - [ ] Add YARD documentation
+- [ ] Create README documentation section
+
+**Implementation Notes:**
+- Admin endpoints are ONLY available for self-hosted Umami instances (NOT Umami Cloud)
+- Requires admin role authentication
+- Provides global views across all resources in the instance
+- Different from regular endpoints which are scoped to current user's permissions
+- All endpoints support pagination and search filtering
+- Should raise appropriate errors for non-admin users or Umami Cloud instances
 
 **Deliverables**:
 - Complete management API coverage
@@ -753,125 +813,815 @@ This workflow successfully retrieves:
 
 ## Phase 7: Rails Integration & Middleware
 
+**Major Phase** - This phase adds comprehensive Rails integration for seamless use in Rails applications.
+
 ### Goals
-- Create Rails integration gem/plugin
-- Implement Rack middleware for automatic tracking
-- Add Rails generators
-- Create view helpers
+- Create Rails integration with automatic configuration
+- Implement Rack middleware for automatic page view tracking
+- Add Rails generators for easy setup
+- Create view helpers for client-side tracking
+- Add controller concerns for server-side tracking
+- Provide background job integration
+- Integrate Reports API with Rails-specific helpers
+- Provide ActiveRecord model tracking
+- Create analytics dashboard generator with common reports
 
 ### Tasks
 
 #### 7.1: Rails Integration Setup
-- [ ] Create `lib/umami/rails.rb` for Rails-specific code
-- [ ] Create Railtie for automatic configuration
-- [ ] Add engine for mounting if needed
-- [ ] Set up Rails generators structure
+
+##### 7.1.1: Create Rails Module Structure
+- [ ] Create `lib/umami_client/rails.rb` file
+- [ ] Define `UmamiClient::Rails` module
+- [ ] Add require statement in main `lib/umami_client.rb`
+- [ ] Test module loads correctly in Rails environment
+
+##### 7.1.2: Create Rails Railtie
+- [ ] Create `lib/umami_client/rails/railtie.rb`
+- [ ] Define `UmamiClient::Rails::Railtie` class inheriting from `Rails::Railtie`
+- [ ] Add initializer to set up UmamiClient configuration from Rails config
+- [ ] Add initializer to register middleware automatically
+- [ ] Add rake tasks namespace for Umami operations
+- [ ] Test railtie loads in Rails app
+
+##### 7.1.3: Create Rails Configuration DSL
+- [ ] Add `config.umami_client` configuration to Rails application
+- [ ] Support configuration options:
+  - `api_key` - API key for authentication
+  - `username` / `password` - Self-hosted authentication
+  - `base_url` - Umami instance URL
+  - `website_id` - Default website ID
+  - `enabled` - Enable/disable tracking (default: !Rails.env.test?)
+  - `middleware_enabled` - Enable automatic middleware (default: true)
+  - `skip_paths` - Array/regex of paths to skip
+  - `async` - Use background jobs (default: true)
+- [ ] Add validation for required configuration
+- [ ] Test configuration in test Rails app
+
+##### 7.1.4: Create Rails Engine (Optional)
+- [ ] Evaluate if engine is needed for routes/controllers
+- [ ] Create `lib/umami_client/rails/engine.rb` if needed
+- [ ] Define routes for webhook endpoints (if applicable)
+- [ ] Test engine mounts correctly
 
 #### 7.2: Rack Middleware
-- [ ] Create `Umami::Middleware::Tracker` Rack middleware:
-  ```ruby
-  class Tracker
-    def initialize(app, options = {})
-    def call(env)
-  end
-  ```
-- [ ] Implement automatic page view tracking:
-  - Extract URL, referrer, user agent from request
-  - Track page view on each request
-  - Handle exceptions gracefully
-  - Skip tracking for assets, health checks
-- [ ] Add configuration options:
-  - `skip_paths` - Paths to skip (regex/array)
+
+##### 7.2.1: Create Middleware Class
+- [ ] Create `lib/umami_client/middleware/tracker.rb`
+- [ ] Define `UmamiClient::Middleware::Tracker` class
+- [ ] Implement `initialize(app, options = {})` method
+  - Store app reference
+  - Store configuration options
+  - Initialize UmamiClient connection
+- [ ] Implement `call(env)` method skeleton
+- [ ] Test basic middleware setup
+
+##### 7.2.2: Implement Request Data Extraction
+- [ ] Create private method `extract_request_data(env)`
+- [ ] Extract URL from `env['PATH_INFO']` and `env['QUERY_STRING']`
+- [ ] Extract referrer from `env['HTTP_REFERER']`
+- [ ] Extract user agent from `env['HTTP_USER_AGENT']`
+- [ ] Extract hostname from `env['HTTP_HOST']`
+- [ ] Handle missing/nil values gracefully
+- [ ] Test extraction with various request types
+
+##### 7.2.3: Implement Path Filtering
+- [ ] Create private method `should_skip_request?(env)`
+- [ ] Implement asset path detection:
+  - Skip requests to `/assets/*`
+  - Skip requests to `/packs/*` (Webpacker)
+  - Skip requests with asset extensions (.js, .css, .png, .jpg, etc.)
+- [ ] Implement health check detection:
+  - Skip `/health`, `/healthz`, `/ping`, etc.
+- [ ] Implement custom skip_paths support:
+  - Support Array of strings
+  - Support Array of Regex patterns
+  - Support Proc for dynamic logic
+- [ ] Test filtering logic with various paths
+
+##### 7.2.4: Implement Page View Tracking
+- [ ] Create private method `track_page_view(env)`
+- [ ] Call UmamiClient to send page view event
+- [ ] Include all extracted request data
+- [ ] Handle tracking errors gracefully (log but don't raise)
+- [ ] Test synchronous tracking
+
+##### 7.2.5: Implement Async Tracking
+- [ ] Create private method `track_async(env)`
+- [ ] Check if ActiveJob is available
+- [ ] If async enabled and ActiveJob available:
+  - Queue tracking job (see 7.6)
+  - Return immediately
+- [ ] If async disabled or ActiveJob unavailable:
+  - Fall back to synchronous tracking
+- [ ] Test both async and sync modes
+
+##### 7.2.6: Implement Callback Hooks
+- [ ] Add support for `before_track` callback:
+  - Called before tracking
+  - Can modify tracking data
+  - Can return false to skip tracking
+- [ ] Add support for `after_track` callback:
+  - Called after successful tracking
+  - Receives response object
+- [ ] Test callbacks execute correctly
+
+##### 7.2.7: Add Middleware Configuration Options
+- [ ] Document all configuration options:
+  - `website_id` - Website to track (required)
+  - `skip_paths` - Paths to skip (default: [])
   - `skip_assets` - Skip asset requests (default: true)
-  - `async` - Async tracking (default: true)
-  - `before_track` - Callback hook
-  - `after_track` - Callback hook
-- [ ] Implement async tracking (background job):
-  - Queue tracking to avoid blocking requests
-  - Support ActiveJob or inline execution
-- [ ] Write tests for middleware
+  - `async` - Use background jobs (default: true)
+  - `before_track` - Callback before tracking
+  - `after_track` - Callback after tracking
+  - `enabled` - Enable/disable middleware (default: true)
+- [ ] Add validation for required options
+- [ ] Test configuration variations
+
+##### 7.2.8: Write Middleware Tests
+- [ ] Test middleware tracks page views
+- [ ] Test asset requests are skipped
+- [ ] Test custom skip_paths work
+- [ ] Test before_track can modify data
+- [ ] Test before_track can skip tracking
+- [ ] Test after_track receives response
+- [ ] Test error handling (tracking failures don't break app)
+- [ ] Test async vs sync modes
 - [ ] Add YARD documentation
 
 #### 7.3: Rails Generators
-- [ ] Create `rails generate umami:install` generator:
-  - Generate `config/initializers/umami.rb`
-  - Add configuration template with comments
-  - Add middleware to application.rb (optional)
-- [ ] Create `rails generate umami:config` generator:
-  - Interactive configuration setup
-  - Validate Umami connection
-  - Test event tracking
-- [ ] Write tests for generators
-- [ ] Add YARD documentation
+
+##### 7.3.1: Create Install Generator Structure
+- [ ] Create `lib/generators/umami_client/install/install_generator.rb`
+- [ ] Define `UmamiClient::Generators::InstallGenerator` class
+- [ ] Inherit from `Rails::Generators::Base`
+- [ ] Set source root for templates
+- [ ] Test generator loads
+
+##### 7.3.2: Create Initializer Template
+- [ ] Create `lib/generators/umami_client/install/templates/umami_client.rb`
+- [ ] Add configuration template with:
+  - API key / username & password options (commented examples)
+  - Base URL configuration
+  - Website ID setting
+  - Middleware options (skip_paths, async, etc.)
+  - Comments explaining each option
+  - Rails environment conditionals (disable in test)
+- [ ] Test template generates correctly
+
+##### 7.3.3: Implement Install Generator Logic
+- [ ] Implement `copy_initializer` method to copy template
+- [ ] Add option to enable/disable middleware
+- [ ] Add option to configure for Umami Cloud vs self-hosted
+- [ ] Display post-install instructions:
+  - How to configure credentials
+  - How to get API key / set up authentication
+  - How to find website ID
+  - Next steps for testing
+- [ ] Test generator creates initializer file
+
+##### 7.3.4: Create Configuration Generator
+- [ ] Create `lib/generators/umami_client/config/config_generator.rb`
+- [ ] Implement interactive prompts:
+  - Ask if using Umami Cloud or self-hosted
+  - If Cloud: prompt for API key
+  - If self-hosted: prompt for username, password, base URL
+  - Prompt for website ID
+  - Ask about middleware preferences
+- [ ] Implement connection validation:
+  - Test authentication
+  - Verify website ID exists
+  - Try sending test event
+- [ ] Update or create initializer with collected values
+- [ ] Display success/error messages
+- [ ] Test generator interactively configures
+
+##### 7.3.5: Create Tracking Code Generator
+- [ ] Create `lib/generators/umami_client/views/views_generator.rb`
+- [ ] Generate partial: `app/views/umami_client/_tracking_script.html.erb`
+- [ ] Include Umami JavaScript tracker code
+- [ ] Add data attributes for configuration
+- [ ] Add instructions for including in layout
+- [ ] Test generator creates view files
+
+##### 7.3.6: Write Generator Tests
+- [ ] Test install generator creates initializer
+- [ ] Test install generator with different options
+- [ ] Test config generator (stub prompts)
+- [ ] Test views generator creates partials
+- [ ] Test error handling for invalid inputs
+- [ ] Add YARD documentation for all generators
 
 #### 7.4: View Helpers
-- [ ] Create `Umami::Rails::Helpers` module:
-  ```ruby
-  def umami_script_tag(website_id = nil, **options)
-  def umami_track_event(event_name, data = {})
-  def umami_identify(user_id, data = {})
-  ```
-- [ ] Generate JavaScript tracker snippet
-- [ ] Add data attributes for auto-tracking
-- [ ] Support server-side tracking fallback
-- [ ] Write tests for helpers
-- [ ] Add YARD documentation
+
+##### 7.4.1: Create Helpers Module
+- [ ] Create `lib/umami_client/rails/helpers.rb`
+- [ ] Define `UmamiClient::Rails::Helpers` module
+- [ ] Register module with ActionView::Base in Railtie
+- [ ] Test helpers are available in views
+
+##### 7.4.2: Implement Script Tag Helper
+- [ ] Implement `umami_script_tag(website_id = nil, **options)` method
+- [ ] Generate Umami JavaScript tracker `<script>` tag
+- [ ] Support options:
+  - `src` - Tracker script URL (default: from base_url + /script.js)
+  - `data_website_id` - Website ID (default: from config)
+  - `data_host_url` - API host URL
+  - `data_auto_track` - Enable auto-tracking (default: true)
+  - `data_cache` - Enable caching (default: false)
+  - `async` - Async script loading (default: true)
+  - `defer` - Defer script loading (default: true)
+- [ ] Return HTML-safe string
+- [ ] Test helper generates correct HTML
+
+##### 7.4.3: Implement Client-Side Event Tracking Helper
+- [ ] Implement `umami_event_attributes(event_name, **data)` method
+- [ ] Generate data attributes for HTML elements:
+  - `data-umami-event` - Event name
+  - `data-umami-event-*` - Event properties
+- [ ] Example: `<button <%= umami_event_attributes('signup', plan: 'pro') %>>`
+- [ ] Return HTML-safe string of attributes
+- [ ] Test helper generates correct attributes
+
+##### 7.4.4: Implement Server-Side Event Tracking Helper
+- [ ] Implement `umami_track_event(event_name, url = nil, **data)` method
+- [ ] Call UmamiClient to track event server-side
+- [ ] Support async execution (background job)
+- [ ] Extract current request data if url not provided
+- [ ] Handle errors gracefully (log but don't raise)
+- [ ] Return true/false for success
+- [ ] Test helper tracks events
+
+##### 7.4.5: Implement User Identification Helper
+- [ ] Implement `umami_identify(distinct_id, **properties)` method
+- [ ] Generate JavaScript to set user identity
+- [ ] Support custom properties (name, email, plan, etc.)
+- [ ] Integrate with current_user if available
+- [ ] Return HTML-safe `<script>` tag
+- [ ] Test helper generates correct JavaScript
+
+##### 7.4.6: Implement Content Security Policy (CSP) Helper
+- [ ] Create helper to add Umami domains to CSP
+- [ ] Implement `umami_csp_meta_tag` method
+- [ ] Generate appropriate CSP directives:
+  - `script-src` for tracker script
+  - `connect-src` for API calls
+  - `img-src` for pixel tracking
+- [ ] Test CSP configuration
+
+##### 7.4.7: Write Helper Tests
+- [ ] Test script tag helper with various options
+- [ ] Test event attributes helper
+- [ ] Test server-side tracking helper
+- [ ] Test user identification helper
+- [ ] Test CSP helper
+- [ ] Test helpers with missing configuration
+- [ ] Test HTML safety of output
+- [ ] Add YARD documentation for all helpers
 
 #### 7.5: Controller Concerns
-- [ ] Create `Umami::Rails::Trackable` concern:
-  ```ruby
-  module Trackable
-    extend ActiveSupport::Concern
 
-    included do
-      after_action :track_page_view
-    end
+##### 7.5.1: Create Trackable Concern Structure
+- [ ] Create `lib/umami_client/rails/trackable.rb`
+- [ ] Define `UmamiClient::Rails::Trackable` module
+- [ ] Extend `ActiveSupport::Concern`
+- [ ] Test concern can be included in controllers
 
-    def track_event(name, data = {})
-    def track_page_view
-  end
-  ```
-- [ ] Add DSL for tracking configuration:
-  ```ruby
-  class ArticlesController < ApplicationController
-    include Umami::Rails::Trackable
+##### 7.5.2: Implement Basic Tracking Methods
+- [ ] Implement `track_page_view` method:
+  - Extract URL from request
+  - Extract referrer, user agent
+  - Send page view to Umami
+  - Handle errors gracefully
+- [ ] Implement `track_event(name, **data)` method:
+  - Extract URL from request
+  - Send event to Umami with custom data
+  - Handle errors gracefully
+- [ ] Test basic tracking methods
 
-    track_events only: [:show, :index]
-    track_event :article_view, on: :show
-  end
-  ```
-- [ ] Write tests for concern
-- [ ] Add YARD documentation
+##### 7.5.3: Implement Automatic Page View Tracking
+- [ ] Add `included` block with `after_action :track_page_view_automatically`
+- [ ] Implement `track_page_view_automatically` private method
+- [ ] Check if automatic tracking is enabled for action
+- [ ] Skip if middleware already tracked request
+- [ ] Test automatic tracking on actions
+
+##### 7.5.4: Implement Tracking Configuration DSL
+- [ ] Implement class method `skip_tracking(options = {})`:
+  - Accept `only:` option (array of action names)
+  - Accept `except:` option (array of action names)
+  - Store configuration in class variable
+- [ ] Implement class method `track_page_views(options = {})`:
+  - Accept `only:` / `except:` options
+  - Configure which actions auto-track page views
+- [ ] Check configuration in `track_page_view_automatically`
+- [ ] Test DSL configuration
+
+##### 7.5.5: Implement Custom Event DSL
+- [ ] Implement class method `track_event(event_name, options = {})`:
+  - Accept `on:` option (action name or array)
+  - Accept `if:` / `unless:` options (conditionals)
+  - Accept `data:` option (proc or hash for event data)
+- [ ] Register after_action callback for specified actions
+- [ ] Extract event data from data option
+- [ ] Support accessing controller instance variables in data proc
+- [ ] Test custom event tracking
+
+##### 7.5.6: Implement User Context
+- [ ] Create `umami_user_context` method:
+  - Return hash with current user data
+  - Support `current_user` method if available
+  - Extract user ID, email, name
+- [ ] Automatically include user context in all events
+- [ ] Allow overriding context in individual track calls
+- [ ] Test user context inclusion
+
+##### 7.5.7: Implement Conditional Tracking
+- [ ] Support `if` / `unless` options in DSL:
+  - Accept symbol (method name)
+  - Accept proc
+  - Accept lambda
+- [ ] Evaluate conditionals before tracking
+- [ ] Test conditional tracking logic
+
+##### 7.5.8: Write Concern Tests
+- [ ] Test including concern in controller
+- [ ] Test automatic page view tracking
+- [ ] Test skip_tracking DSL
+- [ ] Test track_page_views with only/except
+- [ ] Test track_event DSL with various options
+- [ ] Test user context inclusion
+- [ ] Test conditional tracking (if/unless)
+- [ ] Test error handling doesn't break controller
+- [ ] Add YARD documentation for all methods
 
 #### 7.6: Background Job Integration
-- [ ] Create `Umami::TrackEventJob` ActiveJob:
+
+##### 7.6.1: Create TrackEventJob
+- [ ] Create `lib/umami_client/jobs/track_event_job.rb`
+- [ ] Define `UmamiClient::TrackEventJob` class
+- [ ] Inherit from `ApplicationJob` (if available) or `ActiveJob::Base`
+- [ ] Set queue name to `:umami` or configurable
+- [ ] Test job class loads
+
+##### 7.6.2: Implement Job Perform Method
+- [ ] Implement `perform(event_type, url, data = {})` method:
+  - `event_type` - 'pageview' or event name
+  - `url` - Request URL
+  - `data` - Hash with event data (hostname, referrer, user_agent, etc.)
+- [ ] Initialize UmamiClient from Rails configuration
+- [ ] Call appropriate tracking method (pageview vs event)
+- [ ] Handle errors and log failures
+- [ ] Test job performs successfully
+
+##### 7.6.3: Implement Retry Logic
+- [ ] Set retry attempts (default: 3)
+- [ ] Configure retry delays (exponential backoff)
+- [ ] Handle specific exception types:
+  - Network errors: retry
+  - Authentication errors: discard (no retry)
+  - Validation errors: discard (no retry)
+- [ ] Add logging for retries
+- [ ] Test retry behavior
+
+##### 7.6.4: Implement Job Serialization
+- [ ] Ensure all job arguments are serializable
+- [ ] Handle complex objects (convert to hashes)
+- [ ] Test job can be enqueued and deserialized
+
+##### 7.6.5: Create TrackPageViewJob
+- [ ] Create `lib/umami_client/jobs/track_page_view_job.rb`
+- [ ] Implement specialized job for page views
+- [ ] Optimize for page view tracking
+- [ ] Test page view job
+
+##### 7.6.6: Integrate Jobs with Middleware
+- [ ] Update middleware to enqueue jobs when async enabled
+- [ ] Pass extracted request data to job
+- [ ] Handle job queue errors gracefully
+- [ ] Test middleware enqueues jobs
+
+##### 7.6.7: Integrate Jobs with Controller Concern
+- [ ] Update trackable concern to use jobs when async enabled
+- [ ] Enqueue TrackEventJob for custom events
+- [ ] Enqueue TrackPageViewJob for page views
+- [ ] Test concern enqueues jobs
+
+##### 7.6.8: Write Job Tests
+- [ ] Test TrackEventJob performs tracking
+- [ ] Test TrackPageViewJob performs tracking
+- [ ] Test retry logic with network errors
+- [ ] Test discard logic with auth errors
+- [ ] Test job serialization/deserialization
+- [ ] Test integration with middleware
+- [ ] Test integration with controller concern
+- [ ] Add YARD documentation for all jobs
+
+#### 7.7: Reports & Analytics Integration
+
+##### 7.7.1: Create Reports Helper Module
+- [ ] Create `lib/umami_client/rails/reports_helper.rb`
+- [ ] Define `UmamiClient::Rails::ReportsHelper` module
+- [ ] Register with ActionView::Base in Railtie
+- [ ] Test module loads and is available in views
+
+##### 7.7.2: Implement Common Funnel Helpers
+- [ ] Implement `umami_signup_funnel(steps: [], window: 30)` helper:
+  - Default steps: [landing, signup, email_verified, welcome]
+  - Customizable steps and conversion window
+  - Return funnel report data
+- [ ] Implement `umami_checkout_funnel(steps: [], window: 30)` helper:
+  - Default steps: [cart, checkout, payment_info, order_complete]
+  - E-commerce specific funnel
+  - Return funnel report data
+- [ ] Implement `umami_onboarding_funnel(steps: [], window: 60)` helper:
+  - Default steps: [signup, profile_complete, first_action, invite_sent]
+  - SaaS onboarding specific
+  - Return funnel report data
+- [ ] Test funnel helpers with various configurations
+
+##### 7.7.3: Implement Common Goal Helpers
+- [ ] Implement `umami_ecommerce_goals` helper:
+  - Return hash of common e-commerce goals (purchase, add_to_cart, checkout_started)
+  - Execute multiple goal reports in parallel
+  - Return structured data for dashboard display
+- [ ] Implement `umami_saas_goals` helper:
+  - Return hash of SaaS goals (trial_start, demo_request, payment_added)
+  - Execute multiple goal reports
+  - Return structured data
+- [ ] Implement `umami_content_goals` helper:
+  - Return hash of content goals (newsletter_signup, article_complete, social_share)
+  - Execute multiple goal reports
+  - Return structured data
+- [ ] Test goal helpers return expected data structure
+
+##### 7.7.4: Implement Retention Analysis Helpers
+- [ ] Implement `umami_user_retention(cohort_date:, timezone: 'UTC')` helper:
+  - Analyze user retention from cohort date
+  - Return retention curve data (Day 1, 7, 30, 90)
+  - Format for visualization
+- [ ] Implement `umami_cohort_retention(start_date:, end_date:, timezone: 'UTC')` helper:
+  - Analyze multiple cohorts over date range
+  - Return cohort matrix data
+  - Format for heatmap visualization
+- [ ] Test retention helpers with various date ranges
+
+##### 7.7.5: Implement ActiveRecord Integration
+- [ ] Create `lib/umami_client/rails/model_tracking.rb`
+- [ ] Define `UmamiClient::Rails::ModelTracking` concern
+- [ ] Implement class method `track_umami_events(options = {})`:
+  - `on: [:create, :update, :destroy]` - Lifecycle events to track
+  - `event_name:` - Event name template (supports interpolation)
+  - `properties:` - Proc to extract properties from model
+- [ ] Example usage:
   ```ruby
-  class TrackEventJob < ApplicationJob
-    def perform(event_name, data = {})
+  class User < ApplicationRecord
+    include UmamiClient::Rails::ModelTracking
+    track_umami_events on: :create,
+                       event_name: 'user_signup',
+                       properties: -> { { plan: plan, source: referral_source } }
   end
   ```
-- [ ] Support ActiveJob
-- [ ] Add retry logic
-- [ ] Write tests
-- [ ] Add YARD documentation
+- [ ] Implement after_commit callbacks for tracking
+- [ ] Test model tracking with create/update/destroy
+
+##### 7.7.6: Implement Report View Helpers
+- [ ] Implement `umami_funnel_table(funnel_data, **options)` helper:
+  - Render funnel data as HTML table
+  - Show visitors, conversion rate, drop-off rate
+  - Highlight problem areas (high drop-off)
+  - Return HTML-safe string
+- [ ] Implement `umami_funnel_chart_data(funnel_data)` helper:
+  - Format funnel data for Chart.js or similar
+  - Return JSON structure for visualization
+- [ ] Implement `umami_retention_heatmap(retention_data, **options)` helper:
+  - Render retention matrix as HTML table with color coding
+  - Show cohort retention percentages
+  - Color-code by retention rate (green=high, red=low)
+- [ ] Implement `umami_goals_summary(goals_data, **options)` helper:
+  - Render multiple goals as summary cards
+  - Show goal completion count and rate
+  - Format numbers with separators
+- [ ] Test all view helpers generate correct HTML
+
+##### 7.7.7: Create Analytics Dashboard Generator
+- [ ] Create `lib/generators/umami_client/dashboard/dashboard_generator.rb`
+- [ ] Implement generator with options:
+  - `--type=ecommerce|saas|content` - Dashboard type
+  - `--reports=funnel,goals,retention` - Reports to include
+- [ ] Generate controller: `app/controllers/analytics_controller.rb`:
+  - Actions for each report type
+  - Load report data using helpers
+  - Handle date range parameters
+- [ ] Generate views: `app/views/analytics/*.html.erb`:
+  - Dashboard overview page
+  - Individual report pages
+  - Use report view helpers
+  - Include Chart.js for visualizations
+- [ ] Generate routes:
+  - `/analytics` - Dashboard overview
+  - `/analytics/funnels` - Funnel reports
+  - `/analytics/goals` - Goal reports
+  - `/analytics/retention` - Retention analysis
+- [ ] Test generator creates all files correctly
+
+##### 7.7.8: Create Report Templates
+- [ ] Create report template classes:
+  - `UmamiClient::Rails::Templates::EcommerceReports`
+  - `UmamiClient::Rails::Templates::SaasReports`
+  - `UmamiClient::Rails::Templates::ContentReports`
+- [ ] Each template provides:
+  - Pre-configured funnel steps
+  - Common goal definitions
+  - Retention analysis configurations
+  - Dashboard layout recommendations
+- [ ] Test templates can be instantiated and used
+
+##### 7.7.9: Implement Rake Tasks for Reports
+
+###### 7.7.9.1: Create Base Rake Task Structure
+- [ ] Create `lib/tasks/umami.rake` file
+- [ ] Define `umami:reports` namespace
+- [ ] Create base task class `UmamiClient::Tasks::BaseReportTask`
+- [ ] Implement common functionality:
+  - Date range parsing (today, yesterday, last_7_days, last_30_days, custom)
+  - Website ID resolution (from config or argument)
+  - Output format handling
+  - Error handling and reporting
+- [ ] Test base task structure
+
+###### 7.7.9.2: Implement Console Output (Default)
+- [ ] Create `UmamiClient::Formatters::ConsoleFormatter` class
+- [ ] Implement formatting for funnels:
+  - ASCII table with steps, visitors, conversion rates, drop-off rates
+  - Color coding (green for good conversion, yellow/red for high drop-off)
+  - Overall metrics summary
+- [ ] Implement formatting for goals:
+  - List of goals with completion counts and rates
+  - Comparison metrics if applicable
+- [ ] Implement formatting for retention:
+  - ASCII table/matrix showing retention percentages
+  - Day 1, 7, 30, 90 columns
+  - Cohort rows
+- [ ] Test console output is readable and well-formatted
+
+###### 7.7.9.3: Implement Markdown Output
+- [ ] Create `UmamiClient::Formatters::MarkdownFormatter` class
+- [ ] Implement formatting for funnels:
+  - Markdown table with steps, visitors, conversion/drop-off rates
+  - Use emoji indicators (✅ good conversion, ⚠️ warning, 🚨 critical)
+  - Summary section with overall metrics
+- [ ] Implement formatting for goals:
+  - List of goals with completion stats
+  - Use markdown checkboxes/badges for visual appeal
+- [ ] Implement formatting for retention:
+  - Markdown table with cohort retention percentages
+  - Color indicators via emoji or badges
+- [ ] Support GitHub Flavored Markdown (GFM) features:
+  - Tables with alignment
+  - Task lists
+  - Syntax highlighting for code blocks (if including config examples)
+- [ ] Usage: `rake umami:reports:funnel[signup] FORMAT=markdown > report.md`
+- [ ] Test markdown renders correctly on GitHub, GitLab, Slack, Discord
+
+###### 7.7.9.4: Implement JSON Output
+- [ ] Create `UmamiClient::Formatters::JsonFormatter` class
+- [ ] Serialize report data to JSON
+- [ ] Include metadata (report_type, date_range, website_id, generated_at)
+- [ ] Pretty print JSON by default, compact with `COMPACT=true` option
+- [ ] Usage: `rake umami:reports:funnel[signup] FORMAT=json > report.json`
+- [ ] Test JSON output is valid and complete
+
+###### 7.7.9.5: Implement CSV Output
+- [ ] Create `UmamiClient::Formatters::CsvFormatter` class
+- [ ] Implement CSV formatting for funnels:
+  - Headers: Step, Type, Value, Visitors, Conversion Rate, Drop-off Rate
+  - One row per funnel step
+- [ ] Implement CSV formatting for goals:
+  - Headers: Goal Type, Goal Value, Completions, Total Events, Conversion Rate
+  - One row per goal
+- [ ] Implement CSV formatting for retention:
+  - Headers: Cohort Date, Day 1, Day 7, Day 30, Day 90
+  - One row per cohort
+- [ ] Usage: `rake umami:reports:retention FORMAT=csv > retention.csv`
+- [ ] Test CSV output can be imported to Excel/Google Sheets
+
+###### 7.7.9.6: Implement HTML Output (Foundation for Email/PDF)
+- [ ] Create `UmamiClient::Formatters::HtmlFormatter` class
+- [ ] Create HTML templates in `lib/umami_client/templates/reports/`:
+  - `funnel_report.html.erb`
+  - `goals_report.html.erb`
+  - `retention_report.html.erb`
+  - `daily_summary.html.erb`
+- [ ] Include inline CSS for styling (no external dependencies)
+- [ ] Add Chart.js for visualizations:
+  - Funnel charts (bar or funnel visualization)
+  - Goals summary cards
+  - Retention heatmap
+- [ ] Generate standalone HTML file with embedded data
+- [ ] Usage: `rake umami:reports:daily_summary FORMAT=html > report.html`
+- [ ] Test HTML renders correctly in browsers
+
+###### 7.7.9.7: Implement Email Output
+- [ ] Create `UmamiClient::Mailers::ReportsMailer` class
+- [ ] Use HTML formatter output as email body
+- [ ] Support configuration:
+  - `config.umami_client.reports_email_from` - From address
+  - `config.umami_client.reports_email_to` - Recipient(s)
+  - `config.umami_client.reports_email_subject_prefix` - Subject prefix
+- [ ] Implement `daily_summary` email:
+  - Subject: "[Analytics] Daily Summary - {date}"
+  - Body: HTML report with key metrics
+  - Include text alternative (plain text version)
+- [ ] Usage: `rake umami:reports:daily_summary FORMAT=email`
+- [ ] Test emails are sent and formatted correctly
+
+###### 7.7.9.8: Implement PDF Output
+- [ ] Add optional dependency on `wicked_pdf` or `prawn` gem
+- [ ] Create `UmamiClient::Formatters::PdfFormatter` class
+- [ ] Convert HTML output to PDF:
+  - If using wicked_pdf: render HTML then convert
+  - If using prawn: generate PDF directly from data
+- [ ] Include charts/visualizations in PDF
+- [ ] Support page breaks for multi-page reports
+- [ ] Usage: `rake umami:reports:retention FORMAT=pdf > retention.pdf`
+- [ ] Document PDF dependency in README (optional feature)
+- [ ] Test PDFs generate correctly
+
+###### 7.7.9.9: Implement Report-Specific Tasks
+- [ ] Implement `rake umami:reports:funnel[type]`:
+  - `type` options: signup, checkout, onboarding, or custom
+  - If custom: requires STEPS environment variable (JSON array)
+  - Optional: WINDOW (conversion window in minutes)
+  - Optional: START_DATE, END_DATE
+  - Optional: FORMAT (console, markdown, json, csv, html, email, pdf)
+- [ ] Implement `rake umami:reports:goals[type]`:
+  - `type` options: ecommerce, saas, content, or custom
+  - If custom: requires GOALS environment variable (JSON array)
+  - Optional: START_DATE, END_DATE
+  - Optional: FORMAT (console, markdown, json, csv, html, email, pdf)
+- [ ] Implement `rake umami:reports:retention`:
+  - Optional: COHORT_DATE (specific cohort) or START_DATE/END_DATE (multiple cohorts)
+  - Optional: TIMEZONE (default: UTC)
+  - Optional: FORMAT (console, markdown, json, csv, html, email, pdf)
+- [ ] Implement `rake umami:reports:daily_summary`:
+  - Generates summary of yesterday's metrics
+  - Includes: funnel conversion, goal completions, retention metrics
+  - Default FORMAT: email (sends email)
+  - Can also output console, markdown, json, csv, html, pdf for archiving
+- [ ] Test all tasks with various options
+
+###### 7.7.9.10: Add Scheduling Support
+- [ ] Document scheduling with cron:
+  - Example crontab entries for daily/weekly reports
+  - Environment variable setup for production
+- [ ] Document scheduling with whenever gem:
+  - Example schedule.rb configuration
+  - Different schedules for different report types
+- [ ] Document scheduling with Heroku Scheduler or similar
+- [ ] Add example scripts for common scheduling patterns
+- [ ] Test scheduled execution works correctly
+
+###### 7.7.9.11: Write Rake Task Tests
+- [ ] Test each formatter outputs correct format:
+  - Console: readable terminal output with colors
+  - Markdown: valid GFM with tables and emoji
+  - JSON: valid, parseable JSON with correct schema
+  - CSV: valid, importable to spreadsheets
+  - HTML: renders correctly in browsers
+  - Email: sends with correct headers and body
+  - PDF: generates valid PDF (if dependencies available)
+- [ ] Test rake tasks execute with various options
+- [ ] Test error handling (missing config, invalid dates, API errors)
+- [ ] Test date range parsing (today, yesterday, last_7_days, etc.)
+- [ ] Test output redirection to files
+- [ ] Test markdown renders on GitHub, GitLab, Slack
+- [ ] Test email delivery
+- [ ] Test PDF generation (if dependencies available)
+- [ ] Add YARD documentation for rake tasks and formatters
+
+##### 7.7.10: Write Reports Integration Tests
+- [ ] Test funnel helpers execute and return data
+- [ ] Test goal helpers execute and return data
+- [ ] Test retention helpers execute and return data
+- [ ] Test ActiveRecord model tracking
+- [ ] Test view helpers render HTML correctly
+- [ ] Test dashboard generator creates valid files
+- [ ] Test report templates provide expected configurations
+- [ ] Test rake tasks execute successfully
+- [ ] Add YARD documentation for all reports components
 
 **Deliverables**:
-- Full Rails integration
-- Rack middleware for automatic tracking
-- Rails generators for easy setup
-- View helpers and controller concerns
-- Background job support
-- Comprehensive test suite
+- Complete Rails integration with Railtie and optional Engine
+- Rack middleware for automatic page view tracking
+- Rails configuration DSL (config.umami_client)
+- Four Rails generators:
+  - `rails generate umami_client:install` - Creates initializer
+  - `rails generate umami_client:config` - Interactive setup
+  - `rails generate umami_client:views` - Tracking script partials
+  - `rails generate umami_client:dashboard` - Analytics dashboard with reports
+- View helpers module:
+  - `umami_script_tag` - JavaScript tracker
+  - `umami_event_attributes` - Client-side event data attributes
+  - `umami_track_event` - Server-side tracking helper
+  - `umami_identify` - User identification
+  - `umami_csp_meta_tag` - Content Security Policy helper
+- Reports helpers module:
+  - `umami_signup_funnel` / `umami_checkout_funnel` / `umami_onboarding_funnel` - Common funnels
+  - `umami_ecommerce_goals` / `umami_saas_goals` / `umami_content_goals` - Common goals
+  - `umami_user_retention` / `umami_cohort_retention` - Retention analysis
+  - `umami_funnel_table` / `umami_funnel_chart_data` - Funnel visualization helpers
+  - `umami_retention_heatmap` - Retention visualization helper
+  - `umami_goals_summary` - Goals summary helper
+- Controller concern (UmamiClient::Rails::Trackable):
+  - Automatic page view tracking
+  - Custom event tracking DSL
+  - Skip/only/except configuration
+  - Conditional tracking (if/unless)
+  - User context inclusion
+- ActiveRecord integration:
+  - `ModelTracking` concern for tracking model lifecycle events
+  - Automatic event tracking on create/update/destroy
+  - Configurable event names and properties extraction
+- Background job integration:
+  - TrackEventJob for async event tracking
+  - TrackPageViewJob for async page views
+  - Retry logic with exponential backoff
+  - Integration with middleware and concerns
+- Report templates for common use cases:
+  - `EcommerceReports` - Pre-configured e-commerce analytics
+  - `SaasReports` - Pre-configured SaaS metrics
+  - `ContentReports` - Pre-configured content engagement analytics
+- Rake tasks for reports:
+  - `rake umami:reports:funnel` - Run funnel reports
+  - `rake umami:reports:goals` - Run goal reports
+  - `rake umami:reports:retention` - Run retention analysis
+  - `rake umami:reports:daily_summary` - Generate daily summary
+- Comprehensive test suite for all components
 - Complete YARD documentation
+- Example Rails application
 
 **Definition of Done**:
 - All tests pass with 100% coverage
 - RuboCop checks pass
-- Generators work correctly in test Rails app
-- Middleware tracks requests properly
-- Helpers generate correct HTML/JavaScript
-- All public APIs have YARD documentation
-- Example Rails app demonstrates integration
+- Railtie loads and configures correctly in Rails app
+- Middleware tracks page views without blocking requests
+- Middleware respects skip_paths and filtering configuration
+- Middleware handles errors gracefully (doesn't break app)
+- All three generators work correctly in test Rails app
+- Install generator creates valid initializer
+- Config generator validates connection and saves credentials
+- Views generator creates tracking script partials
+- All view helpers generate correct HTML/JavaScript
+- View helpers are HTML-safe
+- Controller concern tracks page views automatically
+- Controller concern DSL works for custom events
+- Background jobs enqueue and perform successfully
+- Jobs retry on network errors, discard on auth errors
+- Async mode uses jobs, sync mode tracks immediately
+- All public APIs have YARD documentation with examples
+- Reports helpers work correctly:
+  - Common funnel helpers execute and return correct data
+  - Common goal helpers execute and return correct data
+  - Retention helpers execute and return correct data
+  - View helpers render HTML/JSON correctly
+- ActiveRecord integration works:
+  - ModelTracking concern tracks model events
+  - Callbacks execute on create/update/destroy
+  - Properties are correctly extracted
+- Dashboard generator works:
+  - Creates controller, views, routes
+  - Generated dashboard displays reports
+  - Different types (e-commerce, SaaS, content) work
+- Report templates provide correct configurations
+- Rake tasks execute successfully
+- Example Rails app demonstrates:
+  - Installation and configuration
+  - Automatic page view tracking via middleware
+  - Manual page view tracking via concern
+  - Custom event tracking via concern DSL
+  - Client-side tracking via helpers
+  - Server-side tracking via helpers
+  - Background job processing
+  - ActiveRecord model tracking (User signup, Order creation, etc.)
+  - Analytics dashboard with funnel, goals, retention reports
+  - Report visualization (tables, charts, heatmaps)
+- Documentation includes:
+  - Rails integration guide
+  - Generator usage examples
+  - Middleware configuration options
+  - View helper reference
+  - Controller concern DSL reference
+  - Background job configuration
+  - Reports integration guide:
+    - Common funnel helpers usage
+    - Common goal helpers usage
+    - Retention analysis helpers
+    - ActiveRecord model tracking setup
+    - Dashboard generator usage
+    - Report visualization examples
+    - Rake tasks reference
+  - Troubleshooting common issues
 
 ---
 
