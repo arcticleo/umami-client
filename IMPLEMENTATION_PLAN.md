@@ -1043,24 +1043,17 @@ We only need middleware, helpers, and concerns - all of which work without an En
 - Updated README TOC with async tracking link
 - Foundation ready for Phase 7.6 (Background Job implementation)
 
-##### 7.2.6: Implement Callback Hooks
-- [ ] Add support for `before_track` callback:
-  - Called before tracking
-  - Can modify tracking data
-  - Can return false to skip tracking
-- [ ] Add support for `after_track` callback:
-  - Called after successful tracking
-  - Receives response object
-- [ ] Test callbacks execute correctly
+##### 7.2.6: Implement Callback Hooks ⏭️ SKIPPED
+- Decided to skip callback hooks
+- Users can implement their own hooks if needed by subclassing the middleware
+- Keeps the gem simpler and more focused
 
 ##### 7.2.7: Add Middleware Configuration Options
 - [ ] Document all configuration options:
   - `website_id` - Website to track (required)
   - `skip_paths` - Paths to skip (default: [])
   - `skip_assets` - Skip asset requests (default: true)
-  - `async` - Use background jobs (default: true)
-  - `before_track` - Callback before tracking
-  - `after_track` - Callback after tracking
+  - `async` - Use background jobs (default: false)
   - `enabled` - Enable/disable middleware (default: true)
 - [ ] Add validation for required options
 - [ ] Test configuration variations
@@ -1069,9 +1062,6 @@ We only need middleware, helpers, and concerns - all of which work without an En
 - [ ] Test middleware tracks page views
 - [ ] Test asset requests are skipped
 - [ ] Test custom skip_paths work
-- [ ] Test before_track can modify data
-- [ ] Test before_track can skip tracking
-- [ ] Test after_track receives response
 - [ ] Test error handling (tracking failures don't break app)
 - [ ] Test async vs sync modes
 - [ ] Add YARD documentation

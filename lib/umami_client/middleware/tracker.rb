@@ -12,7 +12,6 @@ module UmamiClient
     # - Automatic page view tracking on every request
     # - Intelligent path filtering (skip assets, health checks, etc.)
     # - Async tracking via background jobs (optional)
-    # - Callback hooks for customization (before_track, after_track)
     # - Graceful error handling (tracking failures don't break app)
     #
     # @example Basic usage
@@ -25,8 +24,7 @@ module UmamiClient
     #   config.middleware.use UmamiClient::Middleware::Tracker,
     #     website_id: ENV['UMAMI_WEBSITE_ID'],
     #     skip_paths: [/^\/admin/, /^\/api/],
-    #     async: true,
-    #     before_track: ->(env) { puts "Tracking: #{env['PATH_INFO']}" }
+    #     async: true
     class Tracker
       attr_reader :app, :options, :client
 
@@ -37,10 +35,8 @@ module UmamiClient
       # @option options [String] :website_id Website ID for tracking (required)
       # @option options [Array, Regexp, Proc] :skip_paths Paths to skip tracking
       # @option options [Boolean] :skip_assets Skip asset requests (default: true)
-      # @option options [Boolean] :async Use background jobs (default: true)
+      # @option options [Boolean] :async Use background jobs (default: false)
       # @option options [Boolean] :enabled Enable middleware (default: true)
-      # @option options [Proc] :before_track Callback before tracking
-      # @option options [Proc] :after_track Callback after tracking
       def initialize(app, options = {})
         @app = app
         @options = options

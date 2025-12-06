@@ -424,8 +424,6 @@ This automatic fallback ensures tracking always works, even if ActiveJob isn't c
 
 🚧 Features still in development:
 - **Async Tracking Background Job**: ActiveJob integration for non-blocking tracking (Phase 7.6)
-- **Callback Hooks**: `before_track` and `after_track` for customization
-- **Custom Data**: Add extra data to page views via callbacks
 
 ## View Helpers
 
