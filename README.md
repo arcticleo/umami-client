@@ -263,7 +263,13 @@ A Ruby client library for the [Umami Analytics API](https://umami.is/docs/api).
   - [Configuration via Initializer](docs/rails-integration.md#configuration-via-initializer)
 - [Automatic Initialization](docs/rails-integration.md#automatic-initialization)
 - [Using the Client in Rails](docs/rails-integration.md#using-the-client-in-rails)
-- [Rack Middleware](docs/rails-integration.md#rack-middleware) 🚧
+- [Rack Middleware](docs/rails-integration.md#rack-middleware)
+  - [Enabling the Middleware](docs/rails-integration.md#enabling-the-middleware)
+  - [What Gets Tracked](docs/rails-integration.md#what-gets-tracked)
+  - [Path Filtering](docs/rails-integration.md#path-filtering)
+  - [Configuration Options](docs/rails-integration.md#configuration-options)
+  - [Complete Example](docs/rails-integration.md#complete-example)
+  - [Error Handling](docs/rails-integration.md#error-handling)
 - [View Helpers](docs/rails-integration.md#view-helpers) 🚧
 - [Controller Concerns](docs/rails-integration.md#controller-concerns) 🚧
 - [Rails Generators](docs/rails-integration.md#rails-generators) 🚧

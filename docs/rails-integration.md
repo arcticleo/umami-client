@@ -7,11 +7,11 @@ The Umami Client gem provides comprehensive Rails integration for seamless analy
 Rails integration includes:
 - ✅ **Automatic Configuration**: Configure via Rails config files
 - ✅ **Railtie Integration**: Automatic setup and initialization
-- 🚧 **Rack Middleware**: Automatic page view tracking (coming soon)
+- ✅ **Rack Middleware**: Automatic page view tracking with intelligent filtering
 - 🚧 **View Helpers**: Client-side and server-side tracking helpers (coming soon)
 - 🚧 **Controller Concerns**: DSL for tracking page views and custom events (coming soon)
 - 🚧 **Rails Generators**: Easy setup and configuration (coming soon)
-- 🚧 **Background Jobs**: AsyncJob integration for tracking (coming soon)
+- 🚧 **Background Jobs**: AsyncJob integration for async tracking (coming soon)
 - 🚧 **Reports Helpers**: Common analytics patterns and dashboards (coming soon)
 
 ## Installation
@@ -224,13 +224,167 @@ end
 
 ## Rack Middleware
 
-🚧 **Coming Soon** - Automatic page view tracking via Rack middleware
+The gem provides Rack middleware for automatic page view tracking on every request. The middleware extracts request data and intelligently filters what gets tracked.
 
-The middleware will automatically track page views for every request, with options to:
-- Skip specific paths (assets, health checks, etc.)
-- Track asynchronously via background jobs
-- Add custom data via callbacks
-- Filter sensitive information
+### Enabling the Middleware
+
+Enable the middleware in your Rails configuration:
+
+```ruby
+# config/application.rb
+config.umami_client.middleware_enabled = true
+config.umami_client.website_id = ENV['UMAMI_WEBSITE_ID']
+```
+
+The middleware is **disabled by default**. You must explicitly enable it.
+
+### What Gets Tracked
+
+The middleware automatically extracts and tracks:
+
+- **URL**: Full URL including scheme, host, path, and query string
+- **Referrer**: HTTP referrer (where the user came from)
+- **User Agent**: Browser and device information
+- **Hostname**: Server hostname (useful for multi-domain apps)
+
+Example tracked data:
+```ruby
+{
+  url: "https://shop.example.com/products/shoes?color=red",
+  referrer: "https://google.com/search?q=running+shoes",
+  user_agent: "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0)",
+  hostname: "shop.example.com"
+}
+```
+
+### Path Filtering
+
+The middleware intelligently skips requests that shouldn't be tracked.
+
+#### Automatic Asset Filtering
+
+By default (`skip_assets: true`), the middleware skips:
+
+**Path Prefixes:**
+- `/assets/*` - Rails asset pipeline
+- `/packs/*` - Webpacker bundles
+
+**File Extensions:**
+- Scripts/Styles: `.js`, `.css`, `.map`
+- Images: `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`, `.ico`, `.webp`
+- Fonts: `.woff`, `.woff2`, `.ttf`, `.eot`, `.otf`
+- Media: `.mp4`, `.webm`, `.ogg`, `.mp3`, `.wav`
+- Archives: `.pdf`, `.zip`, `.tar`, `.gz`
+
+To track asset requests:
+```ruby
+config.umami_client.skip_assets = false
+```
+
+#### Automatic Health Check Filtering
+
+The middleware always skips common health check endpoints:
+- `/health`, `/healthz`
+- `/ping`, `/status`
+- `/ready`, `/readiness`
+- `/alive`, `/liveness`
+
+#### Custom Path Filtering
+
+Use `skip_paths` to filter custom paths with flexible patterns:
+
+**String - Exact Match:**
+```ruby
+config.umami_client.skip_paths = "/admin"
+# Only skips exact path: /admin
+# Does NOT skip: /admin/users
+```
+
+**Regexp - Pattern Match:**
+```ruby
+config.umami_client.skip_paths = /^\/admin/
+# Skips all admin paths: /admin, /admin/users, /admin/settings, etc.
+```
+
+**Proc - Dynamic Logic:**
+```ruby
+config.umami_client.skip_paths = ->(path) { path.include?("internal") }
+# Skips any path containing "internal"
+```
+
+**Array - Multiple Patterns:**
+```ruby
+config.umami_client.skip_paths = [
+  "/admin",                              # Exact match
+  /^\/api/,                             # All API endpoints
+  ->(path) { path.include?("secret") }  # Dynamic logic
+]
+# Skips paths matching ANY of these patterns
+```
+
+### Configuration Options
+
+All middleware options can be configured via `config.umami_client`:
+
+```ruby
+# config/application.rb
+config.umami_client.middleware_enabled = true  # Enable middleware (default: false)
+config.umami_client.website_id = ENV['UMAMI_WEBSITE_ID']  # Required for tracking
+config.umami_client.skip_assets = true        # Skip asset requests (default: true)
+config.umami_client.skip_paths = []           # Custom paths to skip (default: [])
+```
+
+### Complete Example
+
+```ruby
+# config/application.rb
+module MyApp
+  class Application < Rails::Application
+    # Enable automatic page view tracking
+    config.umami_client.middleware_enabled = true
+    config.umami_client.website_id = ENV['UMAMI_WEBSITE_ID']
+
+    # Skip assets (default: true)
+    config.umami_client.skip_assets = true
+
+    # Skip admin, API, and internal pages
+    config.umami_client.skip_paths = [
+      /^\/admin/,
+      /^\/api/,
+      ->(path) { path.include?("internal") }
+    ]
+  end
+end
+```
+
+### Environment-Specific Configuration
+
+Different settings per environment:
+
+```ruby
+# config/environments/production.rb
+config.umami_client.middleware_enabled = true
+
+# config/environments/development.rb
+config.umami_client.middleware_enabled = false  # Don't track in dev
+
+# config/environments/test.rb
+config.umami_client.disabled = true  # Disable completely in test
+```
+
+### Error Handling
+
+The middleware handles errors gracefully:
+- Tracking failures are logged but **never break your app**
+- Errors are logged to `Rails.logger` when available
+- The response is always returned unchanged
+
+### Coming Soon
+
+🚧 Features still in development:
+- **Async Tracking**: Background job integration for non-blocking tracking
+- **Callback Hooks**: `before_track` and `after_track` for customization
+- **Custom Data**: Add extra data to page views via callbacks
 
 ## View Helpers
 
