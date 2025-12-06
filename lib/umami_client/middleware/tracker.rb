@@ -33,13 +33,17 @@ module UmamiClient
       # @param app [#call] The Rack application
       # @param options [Hash] Configuration options
       # @option options [String] :website_id Website ID for tracking (required)
-      # @option options [Array, Regexp, Proc] :skip_paths Paths to skip tracking
+      # @option options [String, Array, Regexp, Proc] :skip_paths Paths to skip tracking
       # @option options [Boolean] :skip_assets Skip asset requests (default: true)
       # @option options [Boolean] :async Use background jobs (default: false)
       # @option options [Boolean] :enabled Enable middleware (default: true)
       def initialize(app, options = {})
         @app = app
         @options = options
+
+        # Validate required options
+        validate_options!
+
         @client = UmamiClient::Client.new
       end
 
@@ -288,6 +292,39 @@ module UmamiClient
         return false unless defined?(ActiveJob)
 
         true
+      end
+
+      # Validate required configuration options
+      #
+      # @raise [ConfigurationError] if required options are missing or invalid
+      # @return [void]
+      def validate_options!
+        # website_id is required for tracking
+        if options[:website_id].nil? || options[:website_id].to_s.strip.empty?
+          raise ConfigurationError, "Middleware requires :website_id option"
+        end
+
+        # skip_paths must be a String, Array, Regexp, Proc, or nil
+        if options[:skip_paths] && !valid_skip_paths?(options[:skip_paths])
+          raise ConfigurationError, "Middleware :skip_paths must be a String, Array, Regexp, or Proc"
+        end
+      end
+
+      # Check if skip_paths value is valid
+      #
+      # @param value [Object] Value to check
+      # @return [Boolean]
+      def valid_skip_paths?(value)
+        return true if value.is_a?(String)
+        return true if value.is_a?(Regexp)
+        return true if value.is_a?(Proc)
+
+        # If it's an array, check each element
+        if value.is_a?(Array)
+          value.all? { |v| v.is_a?(String) || v.is_a?(Regexp) || v.is_a?(Proc) }
+        else
+          false
+        end
       end
 
       # Log an error message

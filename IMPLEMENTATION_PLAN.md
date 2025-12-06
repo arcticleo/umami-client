@@ -1048,15 +1048,34 @@ We only need middleware, helpers, and concerns - all of which work without an En
 - Users can implement their own hooks if needed by subclassing the middleware
 - Keeps the gem simpler and more focused
 
-##### 7.2.7: Add Middleware Configuration Options
-- [ ] Document all configuration options:
+##### 7.2.7: Add Middleware Configuration Options ✅
+- [x] Document all configuration options:
   - `website_id` - Website to track (required)
   - `skip_paths` - Paths to skip (default: [])
   - `skip_assets` - Skip asset requests (default: true)
   - `async` - Use background jobs (default: false)
   - `enabled` - Enable/disable middleware (default: true)
-- [ ] Add validation for required options
-- [ ] Test configuration variations
+- [x] Add validation for required options
+- [x] Test configuration variations
+
+**Implementation Notes:**
+- Added `validate_options!` method to middleware initialize that:
+  - Validates `website_id` is present and non-empty (raises ConfigurationError if missing)
+  - Validates `skip_paths` is correct type (String, Array, Regexp, or Proc)
+- Created `valid_skip_paths?` helper method to check skip_paths types
+- Updated YARD documentation with all option types and descriptions
+- Created comprehensive test script `test_middleware_config.rb` with 12 tests covering:
+  - Valid minimal configuration (website_id only)
+  - Missing/empty/whitespace website_id (should fail)
+  - All boolean options (enabled, skip_assets, async)
+  - All skip_paths formats (String, Regexp, Proc, Array)
+  - Invalid skip_paths types (should fail)
+  - Default values
+  - Complete configuration
+- Updated docs/rails-integration.md with:
+  - Configuration Options table showing all options, types, defaults, requirements
+  - Validation section explaining requirements and error messages
+- All 12 configuration tests passed ✅
 
 ##### 7.2.8: Write Middleware Tests
 - [ ] Test middleware tracks page views

@@ -326,13 +326,35 @@ config.umami_client.skip_paths = [
 
 All middleware options can be configured via `config.umami_client`:
 
+#### Available Options
+
+| Option | Type | Default | Required | Description |
+|--------|------|---------|----------|-------------|
+| `middleware_enabled` | Boolean | `false` | No | Enable/disable the middleware |
+| `website_id` | String | `nil` | **Yes** | Website ID for tracking (required when middleware enabled) |
+| `skip_assets` | Boolean | `true` | No | Skip asset requests (js, css, images, etc.) |
+| `skip_paths` | String, Array, Regexp, Proc | `[]` | No | Custom paths to skip tracking |
+| `async` | Boolean | `false` | No | Use background jobs for tracking (requires ActiveJob) |
+| `enabled` | Boolean | `true` | No | Enable/disable tracking for this middleware instance |
+
+#### Configuration Example
+
 ```ruby
 # config/application.rb
-config.umami_client.middleware_enabled = true  # Enable middleware (default: false)
-config.umami_client.website_id = ENV['UMAMI_WEBSITE_ID']  # Required for tracking
-config.umami_client.skip_assets = true        # Skip asset requests (default: true)
-config.umami_client.skip_paths = []           # Custom paths to skip (default: [])
+config.umami_client.middleware_enabled = true
+config.umami_client.website_id = ENV['UMAMI_WEBSITE_ID']
+config.umami_client.skip_assets = true
+config.umami_client.skip_paths = []
+config.umami_client.async = false
 ```
+
+#### Validation
+
+The middleware validates configuration on initialization:
+- **`website_id`** is required - raises `ConfigurationError` if missing or empty
+- **`skip_paths`** must be a String, Array, Regexp, or Proc - raises `ConfigurationError` if invalid type
+
+Invalid configuration will prevent your Rails app from booting with a clear error message.
 
 ### Complete Example
 
