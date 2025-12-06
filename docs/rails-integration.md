@@ -128,6 +128,36 @@ end
 
 Both approaches work - use whichever fits your preference. The Rails config approach (`config.umami_client`) is more Rails-idiomatic.
 
+### Configuration Validation
+
+The gem automatically validates your configuration when Rails boots (unless `disabled: true` is set). This helps catch configuration errors early.
+
+**Required Configuration:**
+- **Authentication**: Either `api_key` OR (`username` AND `password`) must be provided
+- **Base URL**: `base_url` must be provided
+
+**Warnings:**
+- If `website_id` is missing but `middleware_enabled` is true, a warning will be logged
+
+**Example Validation Error:**
+
+If you forget to configure authentication:
+
+```
+UmamiClient::ConfigurationError: UmamiClient configuration errors:
+  - Either api_key or username/password must be configured
+  - base_url must be configured
+```
+
+**Bypassing Validation:**
+
+If you want to skip validation (e.g., in development where tracking is disabled):
+
+```ruby
+# config/environments/development.rb
+config.umami_client.disabled = true  # Validation will be skipped
+```
+
 ## Automatic Initialization
 
 The gem uses a Rails Railtie to automatically:
@@ -338,6 +368,23 @@ end
 ### Railtie Not Loading
 
 Make sure Rails is present when the gem loads. The Railtie only loads when `Rails::Railtie` is defined.
+
+### Configuration Validation Errors
+
+If Rails fails to boot with a `UmamiClient::ConfigurationError`:
+
+1. **Check authentication**: Make sure you've set either `api_key` OR both `username` and `password`
+2. **Check base_url**: Make sure `base_url` is set
+3. **Check environment variables**: Verify ENV vars are loaded (try `puts ENV['UMAMI_API_KEY']` in the config file)
+4. **Disable temporarily**: Set `config.umami_client.disabled = true` to bypass validation during setup
+
+Example fix:
+
+```ruby
+# config/application.rb
+config.umami_client.api_key = ENV['UMAMI_API_KEY']  # Make sure this ENV var exists!
+config.umami_client.base_url = ENV['UMAMI_BASE_URL']  # And this one too!
+```
 
 ### Configuration Not Applied
 

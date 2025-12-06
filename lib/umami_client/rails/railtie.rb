@@ -51,6 +51,40 @@ module UmamiClient
             umami_config.retry_delay = app.config.umami_client.retry_delay if app.config.umami_client.retry_delay
             umami_config.backoff_factor = app.config.umami_client.backoff_factor if app.config.umami_client.backoff_factor
           end
+
+          # Validate configuration if not disabled
+          unless UmamiClient.configuration.disabled
+            validate_configuration!(app.config.umami_client)
+          end
+        end
+      end
+
+      # Validate required configuration
+      def self.validate_configuration!(config)
+        errors = []
+
+        # Check authentication credentials
+        has_api_key = config.api_key.present?
+        has_username_password = config.username.present? && config.password.present?
+
+        unless has_api_key || has_username_password
+          errors << "Either api_key or username/password must be configured"
+        end
+
+        # Check base_url is present
+        unless config.base_url.present?
+          errors << "base_url must be configured"
+        end
+
+        # Warn if website_id is missing (not required for all operations, but needed for tracking)
+        if config.website_id.blank? && config.middleware_enabled
+          ::Rails.logger.warn "[UmamiClient] website_id is not configured but middleware is enabled. " \
+                              "Tracking may not work correctly."
+        end
+
+        # Raise error if there are validation errors
+        if errors.any?
+          raise UmamiClient::ConfigurationError, "UmamiClient configuration errors:\n  - #{errors.join("\n  - ")}"
         end
       end
 

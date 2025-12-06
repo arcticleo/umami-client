@@ -871,19 +871,35 @@ This workflow successfully retrieves:
 - All tests passing (7/7)
 - Updated `docs/rails-integration.md` with configuration examples
 
-##### 7.1.3: Create Rails Configuration DSL
-- [ ] Add `config.umami_client` configuration to Rails application
-- [ ] Support configuration options:
+##### 7.1.3: Create Rails Configuration DSL ✅ COMPLETED
+- [x] Add `config.umami_client` configuration to Rails application
+- [x] Support configuration options:
   - `api_key` - API key for authentication
   - `username` / `password` - Self-hosted authentication
   - `base_url` - Umami instance URL
   - `website_id` - Default website ID
-  - `enabled` - Enable/disable tracking (default: !Rails.env.test?)
-  - `middleware_enabled` - Enable automatic middleware (default: true)
+  - `disabled` - Enable/disable tracking (default: false)
+  - `middleware_enabled` - Enable automatic middleware (default: false)
   - `skip_paths` - Array/regex of paths to skip
   - `async` - Use background jobs (default: true)
-- [ ] Add validation for required configuration
-- [ ] Test configuration in test Rails app
+  - All core configuration options supported
+- [x] Add validation for required configuration
+- [x] Test configuration in test Rails app
+
+**Implementation Notes:**
+- Configuration DSL already implemented in Railtie (7.1.2)
+- Added `validate_configuration!` method to Railtie
+- Validation checks:
+  - Either `api_key` OR (`username` AND `password`) required
+  - `base_url` required
+  - Warns if `website_id` missing when middleware enabled
+  - Validation skipped when `disabled: true`
+- Raises `UmamiClient::ConfigurationError` with helpful messages
+- All tests passing (8/8)
+- Updated `docs/rails-integration.md` with:
+  - Configuration Validation section
+  - Troubleshooting for validation errors
+  - Example error messages and fixes
 
 ##### 7.1.4: Create Rails Engine (Optional)
 - [ ] Evaluate if engine is needed for routes/controllers
