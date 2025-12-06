@@ -250,6 +250,29 @@ A Ruby client library for the [Umami Analytics API](https://umami.is/docs/api).
 - [Limitations](docs/admin-functions.md#limitations)
 - [Common Use Cases](docs/admin-functions.md#common-use-cases)
 
+### Rails Integration
+
+#### [Rails Integration Guide](docs/rails-integration.md)
+
+- [Overview](docs/rails-integration.md#overview)
+- [Installation](docs/rails-integration.md#installation)
+- [Configuration](docs/rails-integration.md#configuration)
+  - [Basic Configuration](docs/rails-integration.md#basic-configuration)
+  - [Environment-Specific Configuration](docs/rails-integration.md#environment-specific-configuration)
+  - [Available Configuration Options](docs/rails-integration.md#available-configuration-options)
+  - [Configuration via Initializer](docs/rails-integration.md#configuration-via-initializer)
+- [Automatic Initialization](docs/rails-integration.md#automatic-initialization)
+- [Using the Client in Rails](docs/rails-integration.md#using-the-client-in-rails)
+- [Rack Middleware](docs/rails-integration.md#rack-middleware) 🚧
+- [View Helpers](docs/rails-integration.md#view-helpers) 🚧
+- [Controller Concerns](docs/rails-integration.md#controller-concerns) 🚧
+- [Rails Generators](docs/rails-integration.md#rails-generators) 🚧
+- [Background Job Integration](docs/rails-integration.md#background-job-integration) 🚧
+- [Reports Helpers](docs/rails-integration.md#reports-helpers) 🚧
+- [Testing](docs/rails-integration.md#testing)
+- [Best Practices](docs/rails-integration.md#best-practices)
+- [Troubleshooting](docs/rails-integration.md#troubleshooting)
+
 ### Development & Testing
 
 #### [Disabled Mode for Testing](docs/disabled-mode.md)

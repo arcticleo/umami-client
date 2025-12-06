@@ -22,3 +22,6 @@ module UmamiClient
   module Rails
   end
 end
+
+# Load Railtie if Rails is present
+require_relative "rails/railtie" if defined?(::Rails::Railtie)
