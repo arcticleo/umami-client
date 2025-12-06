@@ -997,12 +997,24 @@ We only need middleware, helpers, and concerns - all of which work without an En
 - Created `test_middleware_filtering.rb` - all 16 tests passed (100%)
 - Comprehensive coverage: asset types, health checks, custom patterns, edge cases
 
-##### 7.2.4: Implement Page View Tracking
-- [ ] Create private method `track_page_view(env)`
-- [ ] Call UmamiClient to send page view event
-- [ ] Include all extracted request data
-- [ ] Handle tracking errors gracefully (log but don't raise)
-- [ ] Test synchronous tracking
+##### 7.2.4: Implement Page View Tracking ✅
+- [x] Create private method `track_page_view(env)`
+- [x] Call UmamiClient to send page view event
+- [x] Include all extracted request data
+- [x] Handle tracking errors gracefully (log but don't raise)
+- [x] Test synchronous tracking
+
+**Implementation Notes:**
+- Implemented `track_page_view(env)` method that:
+  - Extracts request data using `extract_request_data(env)`
+  - Calls `client.events.track_pageview` with extracted URL, hostname, and referrer
+  - Includes rescue block that catches all errors and logs them via `log_error`
+  - Never raises exceptions - tracking failures don't break the app
+- Uses Events API's `track_pageview` method (public `/api/send` endpoint, no auth required)
+- All parameters (URL, hostname, referrer) are properly extracted and passed
+- Created `test_middleware_tracking_simple.rb` - all tests passed (100%)
+- Verified: Page views tracked, assets/health checks skipped, graceful error handling
+- Middleware now fully functional for synchronous page view tracking
 
 ##### 7.2.5: Implement Async Tracking
 - [ ] Create private method `track_async(env)`

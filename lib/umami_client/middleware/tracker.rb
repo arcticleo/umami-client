@@ -230,11 +230,25 @@ module UmamiClient
 
       # Track a page view for this request
       #
+      # Extracts request data and sends it to Umami Analytics.
+      # Errors are logged but never raised - tracking failures should not break the app.
+      #
       # @param env [Hash] Rack environment
       # @return [void]
       def track_page_view(env)
-        # TODO: Implement tracking logic in next phase
-        # This will extract request data and send to Umami
+        # Extract request data
+        data = extract_request_data(env)
+
+        # Send page view to Umami
+        client.events.track_pageview(
+          data[:url],
+          website_id: options[:website_id],
+          hostname: data[:hostname],
+          referrer: data[:referrer]
+        )
+      rescue StandardError => e
+        # Log error but don't raise - tracking failures should not break the app
+        log_error("Failed to track page view: #{e.message}")
       end
 
       # Log an error message
