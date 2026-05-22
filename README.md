@@ -201,6 +201,17 @@ A Ruby client library for the [Umami Analytics API](https://umami.is/docs/api).
 - [Common UTM Patterns](docs/utm-reports.md#common-utm-patterns)
 - [Industry Benchmarks](docs/utm-reports.md#industry-benchmarks)
 
+#### [Country Trust Scoring](docs/country-trust.md)
+
+- [Basic Usage](docs/country-trust.md#basic-usage)
+- [Signals](docs/country-trust.md#signals)
+- [Default Weights and Benchmarks](docs/country-trust.md#default-weights-and-benchmarks)
+- [Custom Weights and Benchmarks](docs/country-trust.md#custom-weights-and-benchmarks)
+- [Confidence Threshold](docs/country-trust.md#confidence-threshold)
+- [Timezone](docs/country-trust.md#timezone)
+- [Returned Fields](docs/country-trust.md#returned-fields)
+- [API Calls per Country](docs/country-trust.md#api-calls-per-country)
+
 ### Administrative
 
 #### [User Management](docs/user-management.md)
