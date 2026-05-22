@@ -64,7 +64,7 @@ module UmamiClient
       params[:search] = search if search
       params[:page] = page if page
       params[:pageSize] = page_size if page_size
-      params[:filters] = filters if filters
+      params.merge!(filters) if filters.is_a?(Hash) && !filters.empty?
 
       connection.get("/api/websites/#{website_id}/sessions", params)
     end
@@ -101,7 +101,7 @@ module UmamiClient
         startAt: to_timestamp(start_at),
         endAt: to_timestamp(end_at)
       }
-      params[:filters] = filters if filters
+      params.merge!(filters) if filters.is_a?(Hash) && !filters.empty?
 
       connection.get("/api/websites/#{website_id}/sessions/stats", params)
     end
@@ -145,7 +145,7 @@ module UmamiClient
         endAt: to_timestamp(end_at),
         timezone: tz
       }
-      params[:filters] = filters if filters
+      params.merge!(filters) if filters.is_a?(Hash) && !filters.empty?
 
       connection.get("/api/websites/#{website_id}/sessions/weekly", params)
     end
@@ -273,7 +273,7 @@ module UmamiClient
         startAt: to_timestamp(start_at),
         endAt: to_timestamp(end_at)
       }
-      params[:filters] = filters if filters
+      params.merge!(filters) if filters.is_a?(Hash) && !filters.empty?
 
       connection.get("/api/websites/#{website_id}/session-data/properties", params)
     end
@@ -321,7 +321,7 @@ module UmamiClient
         params[:startAt] = to_timestamp(start_at)
         params[:endAt] = to_timestamp(end_at)
       end
-      params[:filters] = filters if filters
+      params.merge!(filters) if filters.is_a?(Hash) && !filters.empty?
 
       connection.get("/api/websites/#{website_id}/session-data/values", params)
     end

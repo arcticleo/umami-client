@@ -2,7 +2,14 @@
 
 require "umami_client"
 require "webmock/rspec"
-require "vcr"
+VCR_AVAILABLE = begin
+  require "vcr"
+  true
+rescue LoadError, NameError
+  # VCR (via its `cgi` dep) is broken on Ruby 4.0+ until upstream fixes
+  # CGI.parse. Specs that don't use VCR still run.
+  false
+end
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -20,8 +27,10 @@ end
 WebMock.disable_net_connect!(allow_localhost: true)
 
 # Configure VCR
-VCR.configure do |config|
-  config.cassette_library_dir = "spec/fixtures/vcr_cassettes"
-  config.hook_into :webmock
-  config.configure_rspec_metadata!
+if VCR_AVAILABLE
+  VCR.configure do |config|
+    config.cassette_library_dir = "spec/fixtures/vcr_cassettes"
+    config.hook_into :webmock
+    config.configure_rspec_metadata!
+  end
 end

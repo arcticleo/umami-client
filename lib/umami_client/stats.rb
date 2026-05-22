@@ -71,7 +71,7 @@ module UmamiClient
       }
       params[:unit] = unit if unit
       params[:timezone] = timezone if timezone
-      params[:filters] = filters if filters
+      params.merge!(filters) if filters.is_a?(Hash) && !filters.empty?
 
       connection.get("/api/websites/#{website_id}/stats", params)
     end
@@ -118,7 +118,7 @@ module UmamiClient
       }
       params[:unit] = unit if unit
       params[:compare] = compare if compare
-      params[:filters] = filters if filters
+      params.merge!(filters) if filters.is_a?(Hash) && !filters.empty?
 
       connection.get("/api/websites/#{website_id}/pageviews", params)
     end
@@ -168,7 +168,7 @@ module UmamiClient
       }
       params[:unit] = unit if unit
       params[:timezone] = timezone if timezone
-      params[:filters] = filters if filters
+      params.merge!(filters) if filters.is_a?(Hash) && !filters.empty?
       params[:limit] = limit if limit
       params[:offset] = offset if offset
 
@@ -210,7 +210,7 @@ module UmamiClient
       }
       params[:unit] = unit if unit
       params[:timezone] = timezone if timezone
-      params[:filters] = filters if filters
+      params.merge!(filters) if filters.is_a?(Hash) && !filters.empty?
 
       connection.get("/api/websites/#{website_id}/events/series", params)
     end

@@ -106,17 +106,6 @@ module UmamiClient
         end
       end
 
-      # Load rake tasks
-      rake_tasks do
-        load "tasks/umami.rake" if File.exist?(File.join(root, "lib/tasks/umami.rake"))
-      end
-
-      # Add generator paths
-      generators do
-        require_relative "../generators/install/install_generator"
-        require_relative "../generators/config/config_generator"
-        require_relative "../generators/views/views_generator"
-      end
     end
   end
 end

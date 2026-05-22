@@ -57,7 +57,7 @@ module UmamiClient
       params[:search] = search if search
       params[:page] = page if page
       params[:pageSize] = page_size if page_size
-      params[:filters] = filters if filters
+      params.merge!(filters) if filters.is_a?(Hash) && !filters.empty?
 
       connection.get("/api/websites/#{website_id}/events", params)
     end
@@ -130,7 +130,7 @@ module UmamiClient
         endAt: to_timestamp(end_at)
       }
       params[:event] = event if event
-      params[:filters] = filters if filters
+      params.merge!(filters) if filters.is_a?(Hash) && !filters.empty?
 
       connection.get("/api/websites/#{website_id}/event-data/events", params)
     end
@@ -168,7 +168,7 @@ module UmamiClient
         startAt: to_timestamp(start_at),
         endAt: to_timestamp(end_at)
       }
-      params[:filters] = filters if filters
+      params.merge!(filters) if filters.is_a?(Hash) && !filters.empty?
 
       connection.get("/api/websites/#{website_id}/event-data/fields", params)
     end
@@ -206,7 +206,7 @@ module UmamiClient
         startAt: to_timestamp(start_at),
         endAt: to_timestamp(end_at)
       }
-      params[:filters] = filters if filters
+      params.merge!(filters) if filters.is_a?(Hash) && !filters.empty?
 
       connection.get("/api/websites/#{website_id}/event-data/properties", params)
     end
@@ -252,7 +252,7 @@ module UmamiClient
         event: event,
         propertyName: property_name
       }
-      params[:filters] = filters if filters
+      params.merge!(filters) if filters.is_a?(Hash) && !filters.empty?
 
       connection.get("/api/websites/#{website_id}/event-data/values", params)
     end
@@ -290,7 +290,7 @@ module UmamiClient
         startAt: to_timestamp(start_at),
         endAt: to_timestamp(end_at)
       }
-      params[:filters] = filters if filters
+      params.merge!(filters) if filters.is_a?(Hash) && !filters.empty?
 
       connection.get("/api/websites/#{website_id}/event-data/stats", params)
     end
