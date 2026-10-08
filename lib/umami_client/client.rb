@@ -23,6 +23,10 @@ module UmamiClient
     #     password: "password",
     #     base_url: "https://analytics.example.com"
     #   )
+    #
+    # @example Event tracking only, no credentials needed
+    #   client = UmamiClient.new(base_url: "https://analytics.example.com")
+    #   client.events.track_pageview("/")
     def initialize(api_key: nil, username: nil, password: nil, base_url: nil)
       config = UmamiClient.configuration
 
@@ -32,11 +36,8 @@ module UmamiClient
       @base_url = base_url || config.base_url
       @timeout = config.timeout
 
-      # Validate that we have either api_key OR username/password
-      if @api_key.nil? && (@username.nil? || @password.nil?)
-        raise ConfigurationError, "Either api_key or username/password must be provided"
-      end
-
+      # Credentials are optional: without them only event tracking works,
+      # and the API resources raise ConfigurationError when used
       @connection = Connection.new(
         api_key: @api_key,
         username: @username,

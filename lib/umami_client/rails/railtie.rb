@@ -63,13 +63,7 @@ module UmamiClient
       def self.validate_configuration!(config)
         errors = []
 
-        # Check authentication credentials
-        has_api_key = config.api_key.present?
-        has_username_password = config.username.present? && config.password.present?
-
-        unless has_api_key || has_username_password
-          errors << "Either api_key or username/password must be configured"
-        end
+        # Credentials are optional: event tracking needs none, the API resources do
 
         # Check base_url is present
         unless config.base_url.present?

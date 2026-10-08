@@ -62,13 +62,15 @@ module UmamiClient
 
     private
 
+    # Without credentials the connection can only serve event tracking,
+    # which goes to the public /api/send endpoint
     def determine_auth_method
       if api_key
         :cloud
       elsif username && password
         :self_hosted
       else
-        raise ConfigurationError, "Either api_key or username/password must be provided"
+        :none
       end
     end
 
@@ -155,6 +157,10 @@ module UmamiClient
     end
 
     def request(method, path, params: {}, body: {}, retry_auth: true)
+      if auth_method == :none
+        raise ConfigurationError, "Either api_key or username/password must be provided for API calls"
+      end
+
       # Authenticate for self-hosted if not already done
       authenticate! if auth_method == :self_hosted
 

@@ -29,6 +29,31 @@ client.events.track_pageview(
 )
 ```
 
+## Tracking on a Visitor's Behalf
+
+When the server sends the event, Umami would otherwise see the server's address and User-Agent, so every visitor looks the same. Pass the visitor's own:
+
+```ruby
+client.events.track_pageview(
+  "/download",
+  referrer: request.referer,
+  ip: request.remote_ip,
+  user_agent: request.user_agent
+)
+```
+
+Umami then attributes the event to the visitor's session, geolocates it and applies its bot filter. Both options also work on `track_event`.
+
+Event tracking needs no credentials, so a send-only client is just:
+
+```ruby
+UmamiClient.configure do |config|
+  config.base_url = "https://your-umami-instance.com"
+  config.website_id = "your-website-id"
+  config.default_hostname = "example.com"
+end
+```
+
 ## Track Custom Events
 
 Track custom events with optional data:

@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - `UmamiClient::CountryTrust` — heuristic "legit traffic" scorer per country. Weighted composite of six sub-signals (temporal hourly pattern, pageview depth, iOS share, session duration, browser diversity, repeat-visit ratio). Configurable weights, benchmarks, confidence threshold, and timezone. See `docs/country-trust.md`.
+- `ip:` and `user_agent:` on `track_pageview` and `track_event`, sent to Umami as the visitor's address and browser so server-side tracking keeps sessions, geolocation and bot filtering
+- The Rails middleware passes the visitor's address and browser along
+- Event tracking without credentials: `Client.new` no longer requires an API key or a login, and the API resources raise `ConfigurationError` when used without one
 - Initial gem structure
 - Configuration system
 - Error classes

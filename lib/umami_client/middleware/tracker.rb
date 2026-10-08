@@ -206,8 +206,19 @@ module UmamiClient
           url: build_url(env),
           referrer: env["HTTP_REFERER"],
           user_agent: env["HTTP_USER_AGENT"],
+          ip: client_ip(env),
           hostname: env["HTTP_HOST"]
         }
+      end
+
+      # The visitor's address: the first entry of X-Forwarded-For behind a
+      # proxy, otherwise the peer address
+      #
+      # @param env [Hash] Rack environment
+      # @return [String, nil]
+      def client_ip(env)
+        forwarded = env["HTTP_X_FORWARDED_FOR"].to_s.split(",").first.to_s.strip
+        forwarded.empty? ? env["REMOTE_ADDR"] : forwarded
       end
 
       # Build full URL from Rack environment
@@ -277,7 +288,9 @@ module UmamiClient
           data[:url],
           website_id: options[:website_id],
           hostname: data[:hostname],
-          referrer: data[:referrer]
+          referrer: data[:referrer],
+          ip: data[:ip],
+          user_agent: data[:user_agent]
         )
       end
 

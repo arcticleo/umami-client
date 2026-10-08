@@ -40,6 +40,10 @@ module UmamiClient
     # @param title [String, nil] page title
     # @param screen [String] screen resolution (default: "1920x1080")
     # @param language [String] language code (default: "en-US")
+    # @param ip [String, nil] the visitor's IP address, for sessions and geolocation
+    #   when tracking from a server on the visitor's behalf
+    # @param user_agent [String, nil] the visitor's browser User-Agent, for the
+    #   same reason (the request itself is sent with the configured User-Agent)
     #
     # @return [Response] response containing cache, sessionId, visitId
     #
@@ -48,6 +52,9 @@ module UmamiClient
     #
     # @example Track a simple pageview
     #   events.track_pageview("/")
+    #
+    # @example Track a pageview on behalf of a visitor
+    #   events.track_pageview("/download", ip: request.remote_ip, user_agent: request.user_agent)
     #
     # @example Track pageview with title
     #   events.track_pageview("/products", title: "Products Page")
@@ -58,7 +65,8 @@ module UmamiClient
     #     referrer: "https://google.com"
     #   )
     def track_pageview(url, website_id: nil, hostname: nil, referrer: nil,
-                       title: nil, screen: "1920x1080", language: "en-US")
+                       title: nil, screen: "1920x1080", language: "en-US",
+                       ip: nil, user_agent: nil)
       # Validate required parameters
       raise ValidationError, "url is required" if url.nil? || url.empty?
 
@@ -86,6 +94,7 @@ module UmamiClient
       payload[:payload][:referrer] = referrer if referrer
       payload[:payload][:title] = title if title
       payload[:payload][:id] = @user_id if @user_id
+      add_visitor(payload, ip, user_agent)
 
       # Send the request
       send_event(payload)
@@ -103,6 +112,8 @@ module UmamiClient
     # @param referrer [String, nil] the referrer URL
     # @param title [String, nil] page title
     # @param data [Hash] custom event properties
+    # @param ip [String, nil] the visitor's IP address (see track_pageview)
+    # @param user_agent [String, nil] the visitor's browser User-Agent (see track_pageview)
     #
     # @return [Response] response containing sessionId, visitId
     #
@@ -118,7 +129,7 @@ module UmamiClient
     #     data: { amount: 99.99, currency: "USD", product_id: "prod_123" }
     #   )
     def track_event(event_name, website_id: nil, hostname: nil, url: "/",
-                    referrer: nil, title: nil, data: {})
+                    referrer: nil, title: nil, data: {}, ip: nil, user_agent: nil)
       # Validate required parameters
       raise ValidationError, "event_name is required" if event_name.nil? || event_name.empty?
 
@@ -152,6 +163,7 @@ module UmamiClient
       payload[:payload][:title] = title || ""
       payload[:payload][:data] = validated_data unless validated_data.empty?
       payload[:payload][:id] = @user_id if @user_id
+      add_visitor(payload, ip, user_agent)
 
       # Send the request
       send_event(payload)
@@ -246,6 +258,19 @@ module UmamiClient
     end
 
     private
+
+    # Adds the visitor's address and browser to a payload. Umami uses them
+    # instead of the request's own headers, so a server can track on a
+    # visitor's behalf and still get sessions, geolocation and bot filtering.
+    #
+    # @param payload [Hash] the event payload
+    # @param ip [String, nil] the visitor's IP address
+    # @param user_agent [String, nil] the visitor's User-Agent
+    # @return [void]
+    def add_visitor(payload, ip, user_agent)
+      payload[:payload][:ip] = ip if ip && !ip.empty?
+      payload[:payload][:userAgent] = user_agent if user_agent && !user_agent.empty?
+    end
 
     # Sends an event payload to Umami
     #
